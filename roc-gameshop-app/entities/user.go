@@ -6,6 +6,5 @@ type User struct {
 	Email        string
 	Role         string
 	PhoneNumber  string
-	Salt         string
 	PasswordHash string
 }
