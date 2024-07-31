@@ -17,7 +17,6 @@ CREATE TABLE Users (
     Role VARCHAR(255),
     Email VARCHAR(255) UNIQUE,
     PhoneNumber VARCHAR(255),
-    Salt VARCHAR(255),
     PasswordHash VARCHAR(255)
 );
 

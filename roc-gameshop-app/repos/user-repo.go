@@ -20,10 +20,10 @@ type userRepo struct {
 // Create User
 func (u *userRepo) CreateUser(user entities.User) error {
 	query := `
-	INSERT INTO users (Name, Role, Email, PhoneNumber, Salt, PasswordHash)
-	VALUES (?,?,?,?,?,?)`
+	INSERT INTO users (Name, Role, Email, PhoneNumber, PasswordHash)
+	VALUES (?,?,?,?,?)`
 
-	_, err := u.db.Exec(query, user.Name, user.Role, user.Email, user.PhoneNumber, user.Salt, user.PasswordHash)
+	_, err := u.db.Exec(query, user.Name, user.Role, user.Email, user.PhoneNumber, user.PasswordHash)
 	if err != nil {
 		fmt.Println("Error executing create user query")
 		return err
@@ -45,7 +45,7 @@ func (u *userRepo) GetAllUsers() ([]entities.User, error) {
 	users := []entities.User{}
 	for rows.Next() {
 		user := entities.User{}
-		err := rows.Scan(&user.UserId, &user.Name, &user.Email, &user.Role, &user.PhoneNumber, &user.Salt, &user.PasswordHash)
+		err := rows.Scan(&user.UserId, &user.Name, &user.Email, &user.Role, &user.PhoneNumber, &user.PasswordHash)
 		if err != nil {
 			fmt.Println("Error scanning returned users data")
 			return nil, err
@@ -60,10 +60,10 @@ func (u *userRepo) GetAllUsers() ([]entities.User, error) {
 func (u *userRepo) UpdateUser(id int, user entities.User) error {
 	query := `
 		UPDATE users
-		SET Name = ?, Email = ?, Role = ?, PhoneNumber = ?, Salt = ?, PasswordHash = ?
+		SET Name = ?, Email = ?, Role = ?, PhoneNumber = ?, PasswordHash = ?
 		WHERE UserId = ?
 	`
-	_, err := u.db.Exec(query, user.Name, user.Role, user.Email, user.PhoneNumber, user.Salt, user.PasswordHash, id)
+	_, err := u.db.Exec(query, user.Name, user.Role, user.Email, user.PhoneNumber, user.PasswordHash, id)
 	if err != nil {
 		fmt.Println("Error executing update user query")
 		return err
@@ -85,7 +85,7 @@ func (u *userRepo) GetUserById(id int) (*entities.User, error) {
 	}
 	user := entities.User{}
 	for rows.Next() {
-		err := rows.Scan(&user.UserId, &user.Name, &user.Email, &user.Role, &user.PhoneNumber, &user.Salt, &user.PasswordHash)
+		err := rows.Scan(&user.UserId, &user.Name, &user.Email, &user.Role, &user.PhoneNumber, &user.PasswordHash)
 		if err != nil {
 			fmt.Println("Error scanning returned user data")
 			return nil, err
