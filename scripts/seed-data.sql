@@ -14,18 +14,18 @@ VALUES
 
 
 -- Insert mock data into Users
-INSERT INTO Users (Name, Role, Email, PhoneNumber, Salt, PasswordHash)
+INSERT INTO Users (Name, Role, Email, PhoneNumber, PasswordHash)
 VALUES 
-('Alice Johnson', 'Admin', 'alice.johnson@example.com', '555-123-4567', 'randomSalt1', SHA2(CONCAT('randomSalt1', '12345'), 256)),
-('Bob Smith', 'User', 'bob.smith@example.com', '555-234-5678', 'randomSalt2', SHA2(CONCAT('randomSalt2', '12345'), 256)),
-('Charlie Brown', 'User', 'charlie.brown@example.com', '555-345-6789', 'randomSalt3', SHA2(CONCAT('randomSalt3', '12345'), 256)),
-('David Wilson', 'User', 'david.wilson@example.com', '555-456-7890', 'randomSalt4', SHA2(CONCAT('randomSalt4', '12345'), 256)),
-('Eve Davis', 'User', 'eve.davis@example.com', '555-567-8901', 'randomSalt5', SHA2(CONCAT('randomSalt5', '12345'), 256)),
-('Frank Miller', 'User', 'frank.miller@example.com', '555-678-9012', 'randomSalt6', SHA2(CONCAT('randomSalt6', '12345'), 256)),
-('Grace Lee', 'User', 'grace.lee@example.com', '555-789-0123', 'randomSalt7', SHA2(CONCAT('randomSalt7', '12345'), 256)),
-('Hannah White', 'User', 'hannah.white@example.com', '555-890-1234', 'randomSalt8', SHA2(CONCAT('randomSalt8', '12345'), 256)),
-('Ivan Green', 'User', 'ivan.green@example.com', '555-901-2345', 'randomSalt9', SHA2(CONCAT('randomSalt9', '12345'), 256)),
-('Julia Adams', 'Admin', 'julia.adams@example.com', '555-012-3456', 'randomSalt10', SHA2(CONCAT('randomSalt10', '12345'), 256));
+('Alice Johnson', 'Admin', 'alice.johnson@example.com', '555-123-4567', SHA2(CONCAT('randomSalt1', '12345'), 256)),
+('Bob Smith', 'User', 'bob.smith@example.com', '555-234-5678',  SHA2(CONCAT('randomSalt2', '12345'), 256)),
+('Charlie Brown', 'User', 'charlie.brown@example.com', '555-345-6789',  SHA2(CONCAT('randomSalt3', '12345'), 256)),
+('David Wilson', 'User', 'david.wilson@example.com', '555-456-7890',  SHA2(CONCAT('randomSalt4', '12345'), 256)),
+('Eve Davis', 'User', 'eve.davis@example.com', '555-567-8901',  SHA2(CONCAT('randomSalt5', '12345'), 256)),
+('Frank Miller', 'User', 'frank.miller@example.com', '555-678-9012', SHA2(CONCAT('randomSalt6', '12345'), 256)),
+('Grace Lee', 'User', 'grace.lee@example.com', '555-789-0123',  SHA2(CONCAT('randomSalt7', '12345'), 256)),
+('Hannah White', 'User', 'hannah.white@example.com', '555-890-1234', SHA2(CONCAT('randomSalt8', '12345'), 256)),
+('Ivan Green', 'User', 'ivan.green@example.com', '555-901-2345',  SHA2(CONCAT('randomSalt9', '12345'), 256)),
+('Julia Adams', 'Admin', 'julia.adams@example.com', '555-012-3456',  SHA2(CONCAT('randomSalt10', '12345'), 256));
 
 
 -- Insert mock data into Sales
