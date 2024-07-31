@@ -1,8 +1,15 @@
 package cli
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
+	"os"
+	"os/exec"
 	"roc-gameshop-app/entities"
+	"runtime"
+	"strconv"
+	"strings"
 )
 
 type RouteArgs map[string]string
@@ -36,32 +43,32 @@ type Router interface {
 	//	used by the corresponding clis to handle the requests
 	Push(route string, args RouteArgs)
 	// Removes last element from stack
-	Pop()
+	Pop() StackItem
 	// starts the 'program'
 	//
 	//	will keep runnning until there is no more items in backstack
 	Run(session *Session)
 }
 
-type stackItem struct {
+type StackItem struct {
 	route string
 	args  RouteArgs
 }
 
 type routerV1 struct {
 	routeClis map[string]Cli
-	backStack []stackItem
+	backStack []StackItem
 }
 
 func NewRouter() Router {
 	return &routerV1{
 		routeClis: map[string]Cli{},
-		backStack: []stackItem{},
+		backStack: []StackItem{},
 	}
 }
 
-func newStackItem(route string, args RouteArgs) stackItem {
-	return stackItem{
+func newStackItem(route string, args RouteArgs) StackItem {
+	return StackItem{
 		route: route,
 		args:  args,
 	}
@@ -76,19 +83,21 @@ func (r *routerV1) Push(route string, args RouteArgs) {
 	r.backStack = append(r.backStack, newStackItem(route, args))
 }
 
-func (r *routerV1) Pop() {
+func (r *routerV1) Pop() StackItem {
 	// remove last element from stack
+	topStackItem := r.backStack[len(r.backStack)-1]
 	if len(r.backStack) > 0 {
 		r.backStack = r.backStack[:len(r.backStack)-1]
 	}
+	return topStackItem
 }
 
 func (r *routerV1) Run(session *Session) {
 	// as long as there is something in back stack keep routing
 	for len(r.backStack) > 0 {
 		// get top of stack
-		topStackItem := r.backStack[len(r.backStack)-1]
-		fmt.Println(topStackItem)
+		topStackItem := r.Pop()
+		// fmt.Println(topStackItem)
 		// get cli handler to handle route
 		cli := r.routeClis[topStackItem.route]
 		if cli == nil {
@@ -96,10 +105,53 @@ func (r *routerV1) Run(session *Session) {
 			// panic?
 			panic(fmt.Sprintf("route '%s' has no cli assigned", topStackItem.route))
 		}
-		// TODO
 		// clear the screen
+		CallClear()
 
 		// run cli
 		cli.HandleRoute(topStackItem.args, session)
+	}
+}
+
+// helper to prompt user action
+func PromptUserForAction(reader *bufio.Reader) (int, error) {
+	fmt.Print("What would you like to do? ")
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return 0, err
+	}
+	input = strings.TrimSpace(input)
+
+	// convert to int
+	inputAsInt, err := strconv.Atoi(input)
+	if err != nil {
+		return 0, errors.New("please enter a valid number")
+	}
+
+	return inputAsInt, nil
+}
+
+var clear map[string]func() //create a map for storing clear funcs
+
+func init() {
+	clear = make(map[string]func()) //Initialize it
+	clear["linux"] = func() {
+		cmd := exec.Command("clear") //Linux example, its tested
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
+	clear["windows"] = func() {
+		cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
+}
+
+func CallClear() {
+	value, ok := clear[runtime.GOOS] //runtime.GOOS -> linux, windows, darwin etc.
+	if ok {                          //if we defined a clear func for that platform:
+		value() //we execute it
+	} else { //unsupported platform
+		panic("Your platform is unsupported! I can't clear terminal screen :(")
 	}
 }

@@ -27,20 +27,19 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 	// create clis
-	gameDetailsCli := cli.NewGameDetailsCli(router, reader, handlers.NewGameHandler(repos.NewGameRepo()))
-	// registerCli := cli.NewUserCli(router, reader, handlers.NewUserHandler(repos.NewUserRepo(db)))
-
+	gameDetailsCli := cli.NewGameDetailsCli(router, reader, handlers.NewGameHandler(repos.NewGameRepo(db)))
+	registerCli := cli.NewUserCli(router, reader, handlers.NewUserHandler(repos.NewUserRepo(db)))
+	homepageCli := cli.NewHomepageCli(router, reader)
 	// assign routes
+	router.AddRouteCli(routes.HOME_PAGE_ROUTE, homepageCli)
 	router.AddRouteCli(routes.GAME_DETAILS_ROUTE, gameDetailsCli)
+	router.AddRouteCli(routes.REGISTER_ROUTE, registerCli)
 
 	// create session
 	session := cli.Session{}
 
 	// push starting route
-	routeArgs := cli.RouteArgs{
-		"gameId": "1",
-	}
-	router.Push(routes.GAME_DETAILS_ROUTE, routeArgs)
+	router.Push(routes.HOME_PAGE_ROUTE, cli.RouteArgs{})
 
 	// start
 	router.Run(&session)
