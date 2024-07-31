@@ -52,9 +52,6 @@ func (u *userHandler) Create(user entities.User) error {
 	if user.Role == "" {
 		return fmt.Errorf("User role can't be empty")
 	}
-	if user.Salt == "" {
-		return fmt.Errorf("User salt can't be empty")
-	}
 	if user.PasswordHash == "" {
 		return fmt.Errorf("User password can't be empty")
 	}
