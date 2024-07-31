@@ -19,7 +19,7 @@ type gameRepo struct {
 
 // CreateGame implements GameRepo.
 func (gR *gameRepo) CreateGame(game entities.Game) error {
-	query := `INSERT INTO games(
+	query := `INSERT INTO Games(
 		Name,Description,Genre,SalePrice,RentalPrice,Studio,Stock
 	) VALUES (
 		?,?,?,?,?,?,?
@@ -114,7 +114,7 @@ func (gR *gameRepo) GetGameById(id int) (*entities.Game, error) {
 
 // UpdateGame implements GameRepo.
 func (gR *gameRepo) UpdateGame(game entities.Game) error {
-	query := `UPDATE games
+	query := `UPDATE Games
 		SET Name=?,Description=?,Genre=?,SalePrice=?,RentalPrice=?,Studio=?,Stock=?
 		WHERE GameId = ?`
 	_, err := gR.db.Exec(
