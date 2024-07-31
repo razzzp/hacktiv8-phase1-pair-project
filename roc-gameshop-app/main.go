@@ -14,11 +14,11 @@ import (
 func main() {
 	config.InitGoDotEnv()
 
-	// db, err := config.CreateDBInstance()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer db.Close()
+	db, err := config.CreateDBInstance()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
 	log.Println("Connect to DB.")
 
@@ -28,6 +28,7 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	// create clis
 	gameDetailsCli := cli.NewGameDetailsCli(router, reader, handlers.NewGameHandler(repos.NewGameRepo()))
+	// registerCli := cli.NewUserCli(router, reader, handlers.NewUserHandler(repos.NewUserRepo(db)))
 
 	// assign routes
 	router.AddRouteCli(routes.GAME_DETAILS_ROUTE, gameDetailsCli)
