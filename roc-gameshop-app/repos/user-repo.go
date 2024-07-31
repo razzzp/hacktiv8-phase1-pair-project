@@ -20,7 +20,7 @@ type userRepo struct {
 // Create User
 func (u *userRepo) CreateUser(user entities.User) error {
 	query := `
-	INSERT INTO users (Name, Role, Email, PhoneNumber, PasswordHash)
+	INSERT INTO Users (Name, Role, Email, PhoneNumber, PasswordHash)
 	VALUES (?,?,?,?,?)`
 
 	_, err := u.db.Exec(query, user.Name, user.Role, user.Email, user.PhoneNumber, user.PasswordHash)
@@ -35,7 +35,7 @@ func (u *userRepo) CreateUser(user entities.User) error {
 // Get All User
 func (u *userRepo) GetAllUsers() ([]entities.User, error) {
 	query :=
-		`SELECT * FROM users`
+		`SELECT * FROM Users`
 
 	rows, err := u.db.Query(query)
 	if err != nil {
@@ -59,7 +59,7 @@ func (u *userRepo) GetAllUsers() ([]entities.User, error) {
 // Update User
 func (u *userRepo) UpdateUser(id int, user entities.User) error {
 	query := `
-		UPDATE users
+		UPDATE Users
 		SET Name = ?, Email = ?, Role = ?, PhoneNumber = ?, PasswordHash = ?
 		WHERE UserId = ?
 	`
@@ -75,7 +75,7 @@ func (u *userRepo) UpdateUser(id int, user entities.User) error {
 // Get User By ID
 func (u *userRepo) GetUserById(id int) (*entities.User, error) {
 	query := `
-		SELECT * FROM users WHERE UserId = ?
+		SELECT * FROM Users WHERE UserId = ?
 	`
 
 	rows, err := u.db.Query(query, id)
