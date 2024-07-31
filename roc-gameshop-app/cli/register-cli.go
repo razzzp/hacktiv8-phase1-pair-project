@@ -7,6 +7,7 @@ import (
 	"roc-gameshop-app/handlers"
 	"roc-gameshop-app/routes"
 	"strings"
+	"time"
 )
 
 type registerCli struct {
@@ -24,20 +25,21 @@ func NewUserCli(router Router, reader *bufio.Reader, userHandler handlers.UserHa
 }
 
 func (uC *registerCli) HandleRoute(args RouteArgs, session *Session) {
-	// logic of game details page goes here
-	// TODO
-	fmt.Println("Register User")
-	fmt.Printf("Please enter your name: ")
-	for {
 
+	fmt.Println("Register User")
+
+	for {
 		//get user name
+		fmt.Printf("Please enter your name: ")
 		name, err := uC.reader.ReadString('\n')
 		if err != nil {
 			fmt.Println("error reading user name input")
 			continue
 		}
 		name = strings.TrimSpace(name)
+
 		//get user email
+		fmt.Printf("Please enter your email: ")
 		email, err := uC.reader.ReadString('\n')
 		if err != nil {
 			fmt.Println("error reading user email input")
@@ -45,6 +47,7 @@ func (uC *registerCli) HandleRoute(args RouteArgs, session *Session) {
 		}
 		email = strings.TrimSpace(email)
 		//get user role
+		fmt.Printf("Please enter your role: ")
 		role, err := uC.reader.ReadString('\n')
 		if err != nil {
 			fmt.Println("error reading user role input")
@@ -52,20 +55,16 @@ func (uC *registerCli) HandleRoute(args RouteArgs, session *Session) {
 		}
 		role = strings.TrimSpace(role)
 		//get user phoneNum
+		fmt.Printf("Please enter your phone number: ")
 		phoneNumber, err := uC.reader.ReadString('\n')
 		if err != nil {
 			fmt.Println("error reading user phoneNumber input")
 			continue
 		}
 		phoneNumber = strings.TrimSpace(phoneNumber)
-		//get user salt
-		salt, err := uC.reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("error reading user salt input")
-			continue
-		}
-		salt = strings.TrimSpace(salt)
+
 		//get user password
+		fmt.Printf("Please enter your password: ")
 		password, err := uC.reader.ReadString('\n')
 		if err != nil {
 			fmt.Println("error reading user password input")
@@ -78,31 +77,18 @@ func (uC *registerCli) HandleRoute(args RouteArgs, session *Session) {
 			Email:        email,
 			Role:         role,
 			PhoneNumber:  phoneNumber,
-			Salt:         salt,
+			Salt:         "",
 			PasswordHash: password,
 		}
 		err = uC.userHandler.Create(instance)
 		if err != nil {
+			fmt.Println(err)
 			continue
 		}
+		fmt.Printf("User '%s' successfully registered\n", email)
+		// to let user see success msg :P
+		time.Sleep(time.Second)
 		uC.router.Push(routes.HOME_PAGE_ROUTE, RouteArgs{})
 		return
 	}
-	// for {
-	// 	fmt.Print("What would you like to do? ")
-	// 	input, _ := gDC.reader.ReadString('\n')
-	// 	input = strings.TrimSpace(input)
-	// 	if input == "1" {
-	// 		// push to router and return to go to another route
-	// 		gDC.router.Push(routes.GAME_DETAILS_ROUTE, RouteArgs{"gameId": "2"})
-	// 		return
-	// 	} else if input == "2" {
-	// 		// pop and return to return to previous route
-	// 		gDC.router.Pop()
-	// 		return
-	// 	} else {
-	// 		fmt.Println("Invalid Action.")
-	// 	}
-	// }
-
 }
