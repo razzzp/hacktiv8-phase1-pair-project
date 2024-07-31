@@ -77,7 +77,6 @@ func (uC *registerCli) HandleRoute(args RouteArgs, session *Session) {
 			Email:        email,
 			Role:         role,
 			PhoneNumber:  phoneNumber,
-			Salt:         "",
 			PasswordHash: password,
 		}
 		err = uC.userHandler.Create(instance)
