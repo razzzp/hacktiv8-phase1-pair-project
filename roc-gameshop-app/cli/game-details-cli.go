@@ -168,7 +168,7 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 					time.Sleep(time.Second)
 					return
 				} else {
-					fmt.Printf("Enter Rating (1.0 - 5.0): ")
+					fmt.Printf("Enter Rating (0.0 - 5.0): ")
 					rating, err := gDC.reader.ReadString('\n')
 					if err != nil {
 						fmt.Println("Error reading rating input", err)
@@ -182,8 +182,8 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 						time.Sleep(time.Second)
 						return
 					}
-					if ratingFlt > 5 {
-						fmt.Println("Rating must be between 1.0 - 5.0")
+					if ratingFlt > 5 || ratingFlt < 0 {
+						fmt.Println("Rating must be between 0.0 - 5.0")
 						time.Sleep(time.Second)
 						return
 					}
