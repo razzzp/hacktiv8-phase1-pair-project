@@ -11,10 +11,9 @@ type Rental struct {
 	Status    string
 }
 
-type RentalDTO struct {
-	RentalId  string
-	UserId    string
-	GameId    string
+type RentalOverdue struct {
+	UserName  string
+	GameName  string
 	StartDate string
 	EndDate   string
 	Status    string

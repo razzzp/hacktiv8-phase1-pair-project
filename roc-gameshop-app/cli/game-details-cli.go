@@ -47,8 +47,7 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	// logic of game details page goes here
-	// TODO
+
 	fmt.Println("Game Details Page")
 	fmt.Println(game.Name)
 	fmt.Println("")
@@ -125,6 +124,7 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 				if err != nil {
 					fmt.Println("Error reading rental end date input", err)
 					time.Sleep(time.Second)
+					return
 				}
 				endDate = strings.TrimSpace(endDate)
 				//parse date input
@@ -133,10 +133,12 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 				if err != nil {
 					fmt.Println("Invalid date format, insert date as yyyy-mm-dd")
 					time.Sleep(time.Second)
+					return
 				}
 				if session.CurrentUser == nil {
-					fmt.Println("You must logged in to make a rental")
-					time.Sleep(time.Second)
+					// redirect to login page
+					gDC.router.Push(routes.LOGIN_ROUTE, RouteArgs{})
+					return
 				} else {
 					rental := entities.Rental{
 						UserId:    session.CurrentUser.UserId,
@@ -162,6 +164,50 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 		{
 			Name: "Add Review",
 			ActionFunc: func() {
+				if session.CurrentUser == nil {
+					fmt.Println("You must logged in to add review")
+					time.Sleep(time.Second)
+					return
+				} else {
+					fmt.Printf("Enter Rating (0.0 - 5.0): ")
+					rating, err := gDC.reader.ReadString('\n')
+					if err != nil {
+						fmt.Println("Error reading rating input", err)
+						time.Sleep(time.Second)
+						return
+					}
+					rating = strings.TrimSpace(rating)
+					ratingFlt, err := strconv.ParseFloat(rating, 64)
+					if err != nil {
+						fmt.Println("Error converting rating to float64")
+						time.Sleep(time.Second)
+						return
+					}
+					if ratingFlt > 5 || ratingFlt < 0 {
+						fmt.Println("Rating must be between 0.0 - 5.0")
+						time.Sleep(time.Second)
+						return
+					}
+					fmt.Printf("Enter review message: ")
+					message, err := gDC.reader.ReadString('\n')
+					if err != nil {
+						fmt.Println("Error reading message input", err)
+						time.Sleep(time.Second)
+						return
+					}
+					message = strings.TrimSpace(message)
+					review := entities.Review{
+						UserId:    session.CurrentUser.UserId,
+						GameId:    game.GameId,
+						Rating:    ratingFlt,
+						ReviewMsg: message,
+					}
+					err = gDC.reviewHandler.Create(review)
+					if err != nil {
+						fmt.Println(err)
+					}
+					time.Sleep(time.Second)
+				}
 
 			},
 		},

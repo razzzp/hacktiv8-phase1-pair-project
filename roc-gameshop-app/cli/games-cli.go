@@ -58,7 +58,6 @@ gameLoop:
 		action = strings.TrimSpace(action)
 		switch action {
 		case "1":
-			//TODO
 			fmt.Printf("Enter a game you want to view: ")
 			gameId, err := gC.reader.ReadString('\n')
 			if err != nil {

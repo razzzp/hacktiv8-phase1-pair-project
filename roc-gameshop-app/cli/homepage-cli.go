@@ -38,8 +38,7 @@ func (hpc *homePageCli) GetUserActions(session *Session) []Action {
 		}})
 		//
 		result = append(result, Action{Name: "View Rentals Overdue", ActionFunc: func() {
-			// TODO
-			// hpc.router.Push(routes.RENTALS_OVERDUE_REPORT_ROUTE, RouteArgs{})
+			hpc.router.Push(routes.RENTALS_OVERDUE_ROUTE, RouteArgs{})
 		}})
 		//
 		result = append(result, Action{Name: "View Reviews Report", ActionFunc: func() {

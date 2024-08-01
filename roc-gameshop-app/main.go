@@ -34,6 +34,7 @@ func main() {
 	gamesCli := cli.NewGamesCli(router, reader, handlers.NewGamesHandler(repos.NewGamesRepo(db)))
 	cartCli := cli.NewCartCli(router, reader, handlers.NewSaleHandler(repos.NewSaleRepo(db)))
 	salesReportCli := cli.NewSalesReportCli(router, reader, handlers.NewSalesReportHandler(db))
+	overdueCli := cli.NewOverdueCli(router, reader, handlers.NewRentalHandler(repos.NewRentalRepo(db)))
 
 	// assign routes
 	router.AddRouteCli(routes.HOME_PAGE_ROUTE, homepageCli)
@@ -43,6 +44,7 @@ func main() {
 	router.AddRouteCli(routes.GAMES_ROUTE, gamesCli)
 	router.AddRouteCli(routes.CART_ROUTE, cartCli)
 	router.AddRouteCli(routes.SALES_REPORT_ROUTE, salesReportCli)
+	router.AddRouteCli(routes.RENTALS_OVERDUE_ROUTE, overdueCli)
 
 	// create session
 	session := cli.NewSession()
