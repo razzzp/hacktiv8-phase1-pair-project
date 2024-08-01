@@ -1,9 +1,12 @@
 package entities
 
+import "time"
+
 type Sale struct {
-	UserId  int
-	GameId  int
-	PriceId int
-	SaleId  int
-	StockId int
+	SaleId         int
+	GameId         int
+	UserId         int
+	SaleDate       time.Time
+	PurchasedPrice float64
+	Quantity       int
 }

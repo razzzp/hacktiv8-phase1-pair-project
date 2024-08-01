@@ -12,5 +12,20 @@ type CartItem struct {
 }
 
 type Cart struct {
-	items []*CartItem
+	Items []*CartItem
+}
+
+func (c *Cart) AddItem(item *CartItem) {
+	c.Items = append(c.Items, item)
+}
+
+func (c *Cart) RemoveItem(index int) *CartItem {
+	if index > len(c.Items)-1 || index < 0 {
+		return nil
+	}
+	// get remove to be removed
+	removed := c.Items[index]
+	// remove item
+	c.Items = append(c.Items[:index], c.Items[index+1:]...)
+	return removed
 }
