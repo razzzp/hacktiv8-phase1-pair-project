@@ -2,12 +2,14 @@ package repos
 
 import (
 	"database/sql"
+	"fmt"
 	"roc-gameshop-app/entities"
 )
 
 type ReviewRepo interface {
 	GetGameReviews(gameId int) ([]*entities.ReviewPerGame, error)
 	GetGameAvgRating(gameId int) (*float64, error)
+	CreateReview(review entities.Review) error
 }
 
 type reviewRepo struct {
@@ -75,4 +77,20 @@ func (rR *reviewRepo) GetGameAvgRating(gameId int) (*float64, error) {
 	}
 
 	return &avgRating, nil
+}
+
+func (rR *reviewRepo) CreateReview(review entities.Review) error {
+	query :=
+		`
+		INSERT INTO Reviews (UserId, GameId, Rating, ReviewMsg)
+		VALUES (?,?,?,?)
+	`
+
+	_, err := rR.db.Exec(query, review.UserId, review.GameId, review.Rating, review.ReviewMsg)
+	if err != nil {
+		fmt.Println("Error executing create review query")
+		return err
+	}
+	fmt.Println("Success creating a review")
+	return nil
 }
