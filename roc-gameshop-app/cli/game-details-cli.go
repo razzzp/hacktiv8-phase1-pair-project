@@ -9,12 +9,12 @@ import (
 )
 
 type gameDetailsCli struct {
-	gameHandler handlers.GameHandler
+	gameHandler handlers.GamesHandler
 	router      Router
 	reader      *bufio.Reader
 }
 
-func NewGameDetailsCli(router Router, reader *bufio.Reader, gameHandler handlers.GameHandler) Cli {
+func NewGameDetailsCli(router Router, reader *bufio.Reader, gameHandler handlers.GamesHandler) Cli {
 	return &gameDetailsCli{
 		router:      router,
 		reader:      reader,
