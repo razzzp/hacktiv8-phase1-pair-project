@@ -92,11 +92,18 @@ func (r *routerV1) Pop() StackItem {
 	return topStackItem
 }
 
+func (r *routerV1) Peek() *StackItem {
+	if len(r.backStack) > 0 {
+		return &r.backStack[len(r.backStack)-1]
+	}
+	return nil
+}
+
 func (r *routerV1) Run(session *Session) {
 	// as long as there is something in back stack keep routing
 	for len(r.backStack) > 0 {
 		// get top of stack
-		topStackItem := r.Pop()
+		topStackItem := r.Peek()
 		// fmt.Println(topStackItem)
 		// get cli handler to handle route
 		cli := r.routeClis[topStackItem.route]
@@ -113,8 +120,15 @@ func (r *routerV1) Run(session *Session) {
 	}
 }
 
+// an action with an attached function to run
+// if that action is selected by user
+type Action struct {
+	Name       string
+	ActionFunc func()
+}
+
 // helper to prompt user action
-func PromptUserForAction(reader *bufio.Reader) (int, error) {
+func PromptUserForActionInput(reader *bufio.Reader) (int, error) {
 	fmt.Print("What would you like to do? ")
 	input, err := reader.ReadString('\n')
 	if err != nil {
@@ -129,6 +143,33 @@ func PromptUserForAction(reader *bufio.Reader) (int, error) {
 	}
 
 	return inputAsInt, nil
+}
+
+// prints the given list of actions and asks
+// user to choose one
+// if valid choice
+func PromptUserForActions(actions []Action, reader *bufio.Reader) {
+	// prints actions
+	for i, action := range actions {
+		fmt.Printf("%d. %s\n", i+1, action.Name)
+	}
+	fmt.Println("")
+	for {
+		input, err := PromptUserForActionInput(reader)
+		if err != nil {
+			fmt.Printf("Invalid input: %s, please try again.\n", err)
+			continue
+		}
+		if input > len(actions) {
+			fmt.Printf("Invalid input, please try again.\n")
+			continue
+		}
+
+		// get action
+		selectedAction := actions[input-1]
+		selectedAction.ActionFunc()
+		return
+	}
 }
 
 var clear map[string]func() //create a map for storing clear funcs

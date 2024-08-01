@@ -18,45 +18,42 @@ func NewHomepageCli(router Router, reader *bufio.Reader) Cli {
 	}
 }
 
+func (hpc *homePageCli) GetUserActions(session *Session) []Action {
+	result := []Action{}
+	result = append(result, Action{Name: "Search Games", ActionFunc: func() {
+		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{})
+	}})
+	result = append(result, Action{Name: "View Cart", ActionFunc: func() {
+		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{})
+	}})
+	// only append login/register if not logged in
+	if session.CurrentUser == nil {
+		result = append(result, Action{Name: "Login", ActionFunc: func() {
+			hpc.router.Push(routes.LOGIN_ROUTE, RouteArgs{})
+		}})
+		result = append(result, Action{Name: "Register", ActionFunc: func() {
+			hpc.router.Push(routes.REGISTER_ROUTE, RouteArgs{})
+		}})
+	} else {
+		// allow logout
+		result = append(result, Action{Name: "Logout", ActionFunc: func() {
+			session.CurrentUser = nil
+			hpc.router.Push(routes.HOME_PAGE_ROUTE, RouteArgs{})
+		}})
+	}
+	result = append(result, Action{Name: "Exit", ActionFunc: func() {
+		hpc.router.Pop()
+	}})
+	return result
+}
+
 func (hpc *homePageCli) HandleRoute(args RouteArgs, session *Session) {
-	// logic of game details page goes here
-	// TODO
+
 	fmt.Println("Welcome to ROC Gameshop")
 	fmt.Println("")
 
-	fmt.Println("Actions")
-	fmt.Println("1. Search Games")
-	fmt.Println("2. View Cart")
-	fmt.Println("3. Login")
-	fmt.Println("4. Register")
-	fmt.Println("5. Exit")
-
-	fmt.Println("")
-
-	// temp for testing
-	for {
-		input, err := PromptUserForAction(hpc.reader)
-		if err != nil {
-			fmt.Printf("Invalid input: %s, please try again.\n", err)
-			continue
-		}
-		switch input {
-		case 1:
-			hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{})
-			return
-		case 2:
-			// TODO
-			return
-		case 3:
-			hpc.router.Push(routes.LOGIN_ROUTE, RouteArgs{})
-			return
-		case 4:
-			hpc.router.Push(routes.REGISTER_ROUTE, RouteArgs{})
-			return
-		default:
-			// TODO
-			return
-		}
-	}
+	// get user actions
+	actions := hpc.GetUserActions(session)
+	PromptUserForActions(actions, hpc.reader)
 
 }
