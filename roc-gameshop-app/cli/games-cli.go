@@ -29,15 +29,7 @@ func (gC *gamesCli) HandleRoute(args RouteArgs, session *Session) {
 gameLoop:
 	for {
 
-		//get game name to search
-		fmt.Printf("Enter game name to search: ")
-		name, err := gC.reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("error reading game name input")
-		}
-		name = strings.TrimSpace(name)
-
-		games, err := gC.gamesHandler.GetAll(name, 10, 1)
+		games, err := gC.gamesHandler.GetAll(args["gameName"], 10, 1)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -82,16 +74,15 @@ gameLoop:
 				continue gameLoop
 			}
 			gC.router.Push(routes.GAME_DETAILS_ROUTE, RouteArgs{"gameId": gameId})
-			break gameLoop
+			return
 		case "2":
 			//TODO
 			continue
 		case "3":
 			//TODO
 		case "4":
-			//still error bcs backstack is empty []
-			fmt.Println(gC.router)
 			gC.router.Pop()
+			return
 		}
 	}
 }

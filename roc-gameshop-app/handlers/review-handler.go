@@ -7,6 +7,7 @@ import (
 
 type ReviewHandler interface {
 	GetByGameId(id int) ([]*entities.ReviewPerGame, error)
+	GetAvgRating(id int) (*float64, error)
 }
 
 type reviewHandler struct {
@@ -25,4 +26,12 @@ func (r *reviewHandler) GetByGameId(gameId int) ([]*entities.ReviewPerGame, erro
 		return nil, err
 	}
 	return reviews, nil
+}
+
+func (r *reviewHandler) GetAvgRating(id int) (*float64, error) {
+	avgRating, err := r.reviewRepo.GetGameAvgRating(id)
+	if err != nil {
+		return nil, err
+	}
+	return avgRating, nil
 }

@@ -15,9 +15,6 @@ import (
 type RouteArgs map[string]string
 
 // contains list of items user wants to checkout
-type Cart struct {
-	// TODO
-}
 
 // for storing session data
 type Session struct {
