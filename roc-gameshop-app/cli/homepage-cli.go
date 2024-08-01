@@ -32,7 +32,7 @@ func (hpc *homePageCli) GetUserActions(session *Session) []Action {
 		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{"gameName": name})
 	}})
 	result = append(result, Action{Name: "View Cart", ActionFunc: func() {
-		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{})
+		hpc.router.Push(routes.CART_ROUTE, RouteArgs{})
 	}})
 	// only append login/register if not logged in
 	if session.CurrentUser == nil {
