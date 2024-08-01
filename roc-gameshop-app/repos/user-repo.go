@@ -11,7 +11,7 @@ type UserRepo interface {
 	CreateUser(user entities.User) error
 	UpdateUser(id int, user entities.User) error
 	GetUserById(id int) (*entities.User, error)
-	GetUserByEmail(email string) (*entities.User, error) 
+	GetUserByEmail(email string) (*entities.User, error)
 }
 
 type userRepo struct {
@@ -118,7 +118,7 @@ func (u *userRepo) GetUserByEmail(email string) (*entities.User, error) {
 	user := entities.User{}
 	found := false
 	for rows.Next() {
-		err := rows.Scan(&user.UserId, &user.Name, &user.Email, &user.Role, &user.PhoneNumber, &user.PasswordHash)
+		err := rows.Scan(&user.UserId, &user.Name, &user.Role, &user.Email, &user.PhoneNumber, &user.PasswordHash)
 		if err != nil {
 			fmt.Println("Error scanning returned user data")
 			return nil, err
@@ -132,7 +132,6 @@ func (u *userRepo) GetUserByEmail(email string) (*entities.User, error) {
 
 	return &user, nil
 }
-
 
 func NewUserRepo(db *sql.DB) UserRepo {
 	return &userRepo{db}

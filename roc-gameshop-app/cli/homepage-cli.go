@@ -43,6 +43,19 @@ func (hpc *homePageCli) GetUserActions(session *Session) []Action {
 			hpc.router.Push(routes.REGISTER_ROUTE, RouteArgs{})
 		}})
 	} else {
+		//display report if admin is logged in
+		role := strings.ToLower(session.CurrentUser.Role)
+		if role == "admin" {
+			result = append(result, Action{Name: "View Sales Report", ActionFunc: func() {
+				//TODO
+			}})
+			result = append(result, Action{Name: "View Rentals Overdue Report", ActionFunc: func() {
+				hpc.router.Push(routes.RENTALS_OVERDUE_ROUTE, RouteArgs{})
+			}})
+			result = append(result, Action{Name: "View Reviews Report", ActionFunc: func() {
+				//TODO
+			}})
+		}
 		// allow logout
 		result = append(result, Action{Name: "Logout", ActionFunc: func() {
 			session.CurrentUser = nil
