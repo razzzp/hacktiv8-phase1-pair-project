@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"roc-gameshop-app/routes"
+	"strings"
 )
 
 type homePageCli struct {
@@ -21,7 +22,14 @@ func NewHomepageCli(router Router, reader *bufio.Reader) Cli {
 func (hpc *homePageCli) GetUserActions(session *Session) []Action {
 	result := []Action{}
 	result = append(result, Action{Name: "Search Games", ActionFunc: func() {
-		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{})
+		//get game name to search
+		fmt.Printf("Enter game name to search: ")
+		name, err := hpc.reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("error reading game name input")
+		}
+		name = strings.TrimSpace(name)
+		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{"gameName": name})
 	}})
 	result = append(result, Action{Name: "View Cart", ActionFunc: func() {
 		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{})

@@ -15,9 +15,6 @@ import (
 type RouteArgs map[string]string
 
 // contains list of items user wants to checkout
-type Cart struct {
-	// TODO
-}
 
 // for storing session data
 type Session struct {
@@ -81,9 +78,11 @@ func (r *routerV1) AddRouteCli(route string, cli Cli) {
 func (r *routerV1) Push(route string, args RouteArgs) {
 	// push to stack
 	r.backStack = append(r.backStack, newStackItem(route, args))
+	fmt.Println("push backstack: ", r.backStack)
 }
 
 func (r *routerV1) Pop() StackItem {
+	fmt.Println("backStack", r.backStack)
 	// remove last element from stack
 	topStackItem := r.backStack[len(r.backStack)-1]
 	if len(r.backStack) > 0 {
