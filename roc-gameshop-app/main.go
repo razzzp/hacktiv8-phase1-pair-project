@@ -30,10 +30,12 @@ func main() {
 	gameDetailsCli := cli.NewGameDetailsCli(router, reader, handlers.NewGameHandler(repos.NewGameRepo(db)))
 	registerCli := cli.NewUserCli(router, reader, handlers.NewUserHandler(repos.NewUserRepo(db)))
 	homepageCli := cli.NewHomepageCli(router, reader)
+	loginCli := cli.NewLoginCli(router, reader, handlers.NewAuthHandler(repos.NewUserRepo(db)))
 	// assign routes
 	router.AddRouteCli(routes.HOME_PAGE_ROUTE, homepageCli)
 	router.AddRouteCli(routes.GAME_DETAILS_ROUTE, gameDetailsCli)
 	router.AddRouteCli(routes.REGISTER_ROUTE, registerCli)
+	router.AddRouteCli(routes.LOGIN_ROUTE, loginCli)
 
 	// create session
 	session := cli.Session{}

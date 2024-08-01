@@ -48,7 +48,7 @@ func (hpc *homePageCli) HandleRoute(args RouteArgs, session *Session) {
 			// TODO
 			return
 		case 3:
-			// TODO
+			hpc.router.Push(routes.LOGIN_ROUTE, RouteArgs{})
 			return
 		case 4:
 			hpc.router.Push(routes.REGISTER_ROUTE, RouteArgs{})
