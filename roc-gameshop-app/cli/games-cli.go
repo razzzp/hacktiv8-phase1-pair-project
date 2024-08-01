@@ -76,7 +76,6 @@ gameLoop:
 			gC.router.Push(routes.GAME_DETAILS_ROUTE, RouteArgs{"gameId": gameId})
 			return
 		case "2":
-			//TODO
 			continue
 		case "3":
 			//TODO

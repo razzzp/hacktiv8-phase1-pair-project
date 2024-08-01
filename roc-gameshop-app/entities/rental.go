@@ -7,7 +7,7 @@ type Rental struct {
 	UserId    int
 	GameId    int
 	StartDate time.Time
-	EndDate   *time.Time
+	EndDate   time.Time
 	Status    string
 }
 

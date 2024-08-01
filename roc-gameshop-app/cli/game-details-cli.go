@@ -3,23 +3,28 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"roc-gameshop-app/entities"
 	"roc-gameshop-app/handlers"
 	"strconv"
+	"strings"
+	"time"
 )
 
 type gameDetailsCli struct {
 	gameHandler   handlers.GamesHandler
 	reviewHandler handlers.ReviewHandler
+	rentalHandler handlers.RentalHandler
 	router        Router
 	reader        *bufio.Reader
 }
 
-func NewGameDetailsCli(router Router, reader *bufio.Reader, gameHandler handlers.GamesHandler, reviewHandler handlers.ReviewHandler) Cli {
+func NewGameDetailsCli(router Router, reader *bufio.Reader, gameHandler handlers.GamesHandler, reviewHandler handlers.ReviewHandler, rentalHandler handlers.RentalHandler) Cli {
 	return &gameDetailsCli{
 		router:        router,
 		reader:        reader,
 		gameHandler:   gameHandler,
 		reviewHandler: reviewHandler,
+		rentalHandler: rentalHandler,
 	}
 }
 
@@ -68,7 +73,38 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 		{
 			Name: "Rent",
 			ActionFunc: func() {
-				//TODO
+				fmt.Printf("Enter End Date of your rental (yyyy--mm--dd): ")
+				endDate, err := gDC.reader.ReadString('\n')
+				if err != nil {
+					fmt.Println("Error reading rental end date input", err)
+					time.Sleep(time.Second)
+				}
+				endDate = strings.TrimSpace(endDate)
+				//parse date input
+				layout := "2006-01-02"
+				ed, err := time.Parse(layout, endDate)
+				if err != nil {
+					fmt.Println("Invalid date format, insert date as yyyy-mm-dd")
+					time.Sleep(time.Second)
+				}
+				if session.CurrentUser == nil {
+					fmt.Println("You must logged in to make a rental")
+					time.Sleep(time.Second)
+				} else {
+					rental := entities.Rental{
+						UserId:    session.CurrentUser.UserId,
+						GameId:    game.GameId,
+						StartDate: time.Now(),
+						EndDate:   ed,
+						Status:    "Not Returned",
+					}
+					//TODO
+					err = gDC.rentalHandler.Create(rental)
+					if err != nil {
+						fmt.Println(err)
+					}
+					time.Sleep(time.Second)
+				}
 			},
 		},
 		{

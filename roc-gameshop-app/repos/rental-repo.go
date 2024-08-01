@@ -20,10 +20,10 @@ type rentalRepo struct {
 func (r *rentalRepo) CreateRental(rental entities.Rental) error {
 	query := `
 		INSERT INTO Rentals (UserId, GameId, StartDate, EndDate, Status)
-		VALUES (?,?,?,NULL,?)
+		VALUES (?,?,?,?,?)
 	`
 
-	_, err := r.db.Exec(query, rental.UserId, rental.GameId, rental.StartDate, rental.Status)
+	_, err := r.db.Exec(query, rental.UserId, rental.GameId, rental.StartDate, rental.EndDate, rental.Status)
 	if err != nil {
 		fmt.Println("Error executing create rental query")
 		return err
