@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"roc-gameshop-app/entities"
 	"roc-gameshop-app/handlers"
+	"roc-gameshop-app/routes"
 	"strconv"
 	"strings"
 	"time"
@@ -67,7 +68,51 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 		{
 			Name: "Buy",
 			ActionFunc: func() {
-				//TODO
+				subActions := []Action{
+					{
+						Name: "Buy Now",
+						ActionFunc: func() {
+							//TODO
+							// fmt.Printf("Enter game qty to buy: ")
+							// qty, err := gDC.reader.ReadString('\n')
+							// if err != nil {
+							// 	fmt.Println("Error reading game qty input", err)
+							// 	time.Sleep(time.Second)
+							// }
+							// qty = strings.TrimSpace(qty)
+							// qtyInt, err := strconv.Atoi(qty)
+							// if err != nil {
+							// 	fmt.Println("Invalid qty input, integer only")
+							// 	time.Sleep(time.Second)
+							// }
+						},
+					},
+					{
+						Name: "Add To Cart",
+						ActionFunc: func() {
+							fmt.Printf("Enter game qty to buy: ")
+							qty, err := gDC.reader.ReadString('\n')
+							if err != nil {
+								fmt.Println("Error reading game qty input", err)
+								time.Sleep(time.Second)
+							}
+							qty = strings.TrimSpace(qty)
+							qtyInt, err := strconv.Atoi(qty)
+							if err != nil {
+								fmt.Println("Invalid qty input, integer only")
+								time.Sleep(time.Second)
+							}
+							ci := CartItem{
+								Game:      game,
+								Qty:       qtyInt,
+								BuyOrRent: "Buy",
+								RentDays:  0,
+							}
+							session.CurrentCart.AddItem(&ci)
+						},
+					},
+				}
+				PromptUserForActions(subActions, gDC.reader)
 			},
 		},
 		{
@@ -98,7 +143,6 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 						EndDate:   ed,
 						Status:    "Not Returned",
 					}
-					//TODO
 					err = gDC.rentalHandler.Create(rental)
 					if err != nil {
 						fmt.Println(err)
@@ -110,13 +154,13 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 		{
 			Name: "View Cart",
 			ActionFunc: func() {
-				//TODO
+				gDC.router.Push(routes.CART_ROUTE, RouteArgs{})
 			},
 		},
 		{
 			Name: "Add Review",
 			ActionFunc: func() {
-				//TODO
+
 			},
 		},
 		{
