@@ -32,7 +32,7 @@ func main() {
 	homepageCli := cli.NewHomepageCli(router, reader)
 	loginCli := cli.NewLoginCli(router, reader, handlers.NewAuthHandler(repos.NewUserRepo(db)))
 	gamesCli := cli.NewGamesCli(router, reader, handlers.NewGamesHandler(repos.NewGamesRepo(db)))
-	cartCli := cli.NewCartCli(router, reader)
+	cartCli := cli.NewCartCli(router, reader, handlers.NewSaleHandler(repos.NewSaleRepo(db)))
 
 	// assign routes
 	router.AddRouteCli(routes.HOME_PAGE_ROUTE, homepageCli)
@@ -45,21 +45,21 @@ func main() {
 	session := cli.NewSession()
 
 	// for test only
-	// session.CurrentCart.AddItem(&cli.CartItem{
-	// 	Game:      cli.NewTestGame(1),
-	// 	BuyOrRent: "Buy",
-	// 	Qty:       1,
-	// })
-	// session.CurrentCart.AddItem(&cli.CartItem{
-	// 	Game:      cli.NewTestGame(2),
-	// 	BuyOrRent: "Rent",
-	// 	RentDays:  2,
-	// })
-	// session.CurrentCart.AddItem(&cli.CartItem{
-	// 	Game:      cli.NewTestGame(3),
-	// 	BuyOrRent: "Buy",
-	// 	Qty:       10,
-	// })
+	session.CurrentCart.AddItem(&cli.CartItem{
+		Game:      cli.NewTestGame(1),
+		BuyOrRent: "Buy",
+		Qty:       1,
+	})
+	session.CurrentCart.AddItem(&cli.CartItem{
+		Game:      cli.NewTestGame(2),
+		BuyOrRent: "Rent",
+		RentDays:  2,
+	})
+	session.CurrentCart.AddItem(&cli.CartItem{
+		Game:      cli.NewTestGame(3),
+		BuyOrRent: "Buy",
+		Qty:       10,
+	})
 
 	// push starting route
 	router.Push(routes.HOME_PAGE_ROUTE, cli.RouteArgs{})

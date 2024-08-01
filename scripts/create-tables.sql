@@ -27,6 +27,7 @@ CREATE TABLE Sales (
     UserId INT,
     SaleDate DATE,
     PurchasedPrice DECIMAL(10, 2),
+    Quantity INT,
     FOREIGN KEY (GameId) REFERENCES Games(GameId),
     FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
