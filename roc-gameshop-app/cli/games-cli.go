@@ -78,7 +78,8 @@ gameLoop:
 		case "2":
 			continue
 		case "3":
-			//TODO
+			gC.router.Push(routes.CART_ROUTE, RouteArgs{})
+			return
 		case "4":
 			gC.router.Pop()
 			return
