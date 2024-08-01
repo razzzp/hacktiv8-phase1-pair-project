@@ -14,11 +14,6 @@ import (
 
 type RouteArgs map[string]string
 
-// contains list of items user wants to checkout
-type Cart struct {
-	// TODO
-}
-
 // for storing session data
 type Session struct {
 	// returns nil if not logged in
@@ -27,6 +22,12 @@ type Session struct {
 	// returns current cart
 	CurrentCart *Cart
 	// AddToCart()
+}
+
+func NewSession() *Session {
+	return &Session{
+		CurrentCart: &Cart{},
+	}
 }
 
 type Cli interface {
@@ -53,6 +54,13 @@ type Router interface {
 type StackItem struct {
 	route string
 	args  RouteArgs
+}
+
+func NewStackItem(route string, args RouteArgs) StackItem {
+	return StackItem{
+		route: route,
+		args:  args,
+	}
 }
 
 type routerV1 struct {
@@ -130,6 +138,24 @@ type Action struct {
 // helper to prompt user action
 func PromptUserForActionInput(reader *bufio.Reader) (int, error) {
 	fmt.Print("What would you like to do? ")
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return 0, err
+	}
+	input = strings.TrimSpace(input)
+
+	// convert to int
+	inputAsInt, err := strconv.Atoi(input)
+	if err != nil {
+		return 0, errors.New("please enter a valid number")
+	}
+
+	return inputAsInt, nil
+}
+
+// asks for integer
+func PromptUserForInt(msg string, reader *bufio.Reader) (int, error) {
+	fmt.Print(msg)
 	input, err := reader.ReadString('\n')
 	if err != nil {
 		return 0, err
