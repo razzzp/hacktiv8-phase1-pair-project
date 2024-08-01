@@ -3,23 +3,29 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"roc-gameshop-app/entities"
 	"roc-gameshop-app/handlers"
+	"roc-gameshop-app/routes"
 	"strconv"
+	"strings"
+	"time"
 )
 
 type gameDetailsCli struct {
 	gameHandler   handlers.GamesHandler
 	reviewHandler handlers.ReviewHandler
+	rentalHandler handlers.RentalHandler
 	router        Router
 	reader        *bufio.Reader
 }
 
-func NewGameDetailsCli(router Router, reader *bufio.Reader, gameHandler handlers.GamesHandler, reviewHandler handlers.ReviewHandler) Cli {
+func NewGameDetailsCli(router Router, reader *bufio.Reader, gameHandler handlers.GamesHandler, reviewHandler handlers.ReviewHandler, rentalHandler handlers.RentalHandler) Cli {
 	return &gameDetailsCli{
 		router:        router,
 		reader:        reader,
 		gameHandler:   gameHandler,
 		reviewHandler: reviewHandler,
+		rentalHandler: rentalHandler,
 	}
 }
 
@@ -62,25 +68,99 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 		{
 			Name: "Buy",
 			ActionFunc: func() {
-				//TODO
+				subActions := []Action{
+					{
+						Name: "Buy Now",
+						ActionFunc: func() {
+							//TODO
+							// fmt.Printf("Enter game qty to buy: ")
+							// qty, err := gDC.reader.ReadString('\n')
+							// if err != nil {
+							// 	fmt.Println("Error reading game qty input", err)
+							// 	time.Sleep(time.Second)
+							// }
+							// qty = strings.TrimSpace(qty)
+							// qtyInt, err := strconv.Atoi(qty)
+							// if err != nil {
+							// 	fmt.Println("Invalid qty input, integer only")
+							// 	time.Sleep(time.Second)
+							// }
+						},
+					},
+					{
+						Name: "Add To Cart",
+						ActionFunc: func() {
+							fmt.Printf("Enter game qty to buy: ")
+							qty, err := gDC.reader.ReadString('\n')
+							if err != nil {
+								fmt.Println("Error reading game qty input", err)
+								time.Sleep(time.Second)
+							}
+							qty = strings.TrimSpace(qty)
+							qtyInt, err := strconv.Atoi(qty)
+							if err != nil {
+								fmt.Println("Invalid qty input, integer only")
+								time.Sleep(time.Second)
+							}
+							ci := CartItem{
+								Game:      game,
+								Qty:       qtyInt,
+								BuyOrRent: "Buy",
+								RentDays:  0,
+							}
+							session.CurrentCart.AddItem(&ci)
+						},
+					},
+				}
+				PromptUserForActions(subActions, gDC.reader)
 			},
 		},
 		{
 			Name: "Rent",
 			ActionFunc: func() {
-				//TODO
+				fmt.Printf("Enter End Date of your rental (yyyy--mm--dd): ")
+				endDate, err := gDC.reader.ReadString('\n')
+				if err != nil {
+					fmt.Println("Error reading rental end date input", err)
+					time.Sleep(time.Second)
+				}
+				endDate = strings.TrimSpace(endDate)
+				//parse date input
+				layout := "2006-01-02"
+				ed, err := time.Parse(layout, endDate)
+				if err != nil {
+					fmt.Println("Invalid date format, insert date as yyyy-mm-dd")
+					time.Sleep(time.Second)
+				}
+				if session.CurrentUser == nil {
+					fmt.Println("You must logged in to make a rental")
+					time.Sleep(time.Second)
+				} else {
+					rental := entities.Rental{
+						UserId:    session.CurrentUser.UserId,
+						GameId:    game.GameId,
+						StartDate: time.Now(),
+						EndDate:   ed,
+						Status:    "Not Returned",
+					}
+					err = gDC.rentalHandler.Create(rental)
+					if err != nil {
+						fmt.Println(err)
+					}
+					time.Sleep(time.Second)
+				}
 			},
 		},
 		{
 			Name: "View Cart",
 			ActionFunc: func() {
-				//TODO
+				gDC.router.Push(routes.CART_ROUTE, RouteArgs{})
 			},
 		},
 		{
 			Name: "Add Review",
 			ActionFunc: func() {
-				//TODO
+
 			},
 		},
 		{

@@ -5,13 +5,12 @@ import (
 	"roc-gameshop-app/entities"
 	"roc-gameshop-app/repos"
 	"strconv"
-	"time"
 )
 
 type RentalHandler interface {
 	GetAll() ([]entities.Rental, error)
 	GetById(id int) (*entities.Rental, error)
-	Create(rental entities.RentalDTO) error
+	Create(rental entities.Rental) error
 	Update(id int, rental entities.RentalDTOUpdate) error
 }
 
@@ -43,29 +42,29 @@ func (r *rentalHandler) GetById(id int) (*entities.Rental, error) {
 	return rental, nil
 }
 
-func (r *rentalHandler) Create(rental entities.RentalDTO) error {
-	userIdInt, err := strconv.Atoi(rental.UserId)
-	if err != nil {
-		return fmt.Errorf("Invalid int value for UserId in Rental")
-	}
-	gameIdInt, err := strconv.Atoi(rental.GameId)
-	if err != nil {
-		return fmt.Errorf("Invalid int value for UserId in Rental")
-	}
-	startDate := time.Now()
-	status := "With consumer"
+func (r *rentalHandler) Create(rental entities.Rental) error {
 	// Check if UserId is zero
-	if userIdInt == 0 {
+	if rental.UserId == 0 {
 		return fmt.Errorf("UserId can't be zero")
 	}
 
 	// Check if GameId is zero
-	if gameIdInt == 0 {
+	if rental.GameId == 0 {
 		return fmt.Errorf("GameId can't be zero")
 	}
 
 	// Check if StartDate is not empty (not the zero value)
-	if startDate.IsZero() {
+	if rental.StartDate.IsZero() {
+		return fmt.Errorf("Start date can't be empty")
+	}
+
+	// Check if StartDate is before EndDate
+	if rental.StartDate.After(rental.EndDate) {
+		return fmt.Errorf("Start date must be before end date")
+	}
+
+	// Check if StartDate is not empty (not the zero value)
+	if rental.EndDate.IsZero() {
 		return fmt.Errorf("Start date can't be empty")
 	}
 
@@ -73,14 +72,8 @@ func (r *rentalHandler) Create(rental entities.RentalDTO) error {
 	if rental.Status == "" {
 		return fmt.Errorf("Status can't be empty")
 	}
-	rentalInstance := entities.Rental{
-		UserId:    userIdInt,
-		GameId:    gameIdInt,
-		StartDate: startDate,
-		EndDate:   nil,
-		Status:    status,
-	}
-	err = r.rentalRepo.CreateRental(rentalInstance)
+
+	err := r.rentalRepo.CreateRental(rental)
 	if err != nil {
 		fmt.Println("error create Rental")
 		return err
@@ -128,7 +121,7 @@ func (r *rentalHandler) Update(id int, rental entities.RentalDTOUpdate) error {
 		UserId:    userIdInt,
 		GameId:    gameIdInt,
 		StartDate: rental.StartDate,
-		EndDate:   &rental.EndDate,
+		EndDate:   rental.EndDate,
 		Status:    rental.Status,
 	}
 	err = r.rentalRepo.UpdateRental(id, updatedRental)

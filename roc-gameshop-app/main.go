@@ -27,7 +27,7 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 	// create clis
-	gameDetailsCli := cli.NewGameDetailsCli(router, reader, handlers.NewGamesHandler(repos.NewGamesRepo(db)), handlers.NewReviewHandler(repos.NewReviewsRepo(db)))
+	gameDetailsCli := cli.NewGameDetailsCli(router, reader, handlers.NewGamesHandler(repos.NewGamesRepo(db)), handlers.NewReviewHandler(repos.NewReviewsRepo(db)), handlers.NewRentalHandler(repos.NewRentalRepo(db)))
 	registerCli := cli.NewUserCli(router, reader, handlers.NewUserHandler(repos.NewUserRepo(db)))
 	homepageCli := cli.NewHomepageCli(router, reader)
 	loginCli := cli.NewLoginCli(router, reader, handlers.NewAuthHandler(repos.NewUserRepo(db)))
