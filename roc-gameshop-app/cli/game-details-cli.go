@@ -109,6 +109,8 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 								RentDays:  0,
 							}
 							session.CurrentCart.AddItem(&ci)
+							fmt.Println("Added to cart")
+							time.Sleep(time.Second)
 						},
 					},
 				}

@@ -178,6 +178,7 @@ func PromptUserForInt(msg string, reader *bufio.Reader) (int, error) {
 // if valid choice
 func PromptUserForActions(actions []Action, reader *bufio.Reader) {
 	// prints actions
+	fmt.Println("Actions:")
 	for i, action := range actions {
 		fmt.Printf("%d. %s\n", i+1, action.Name)
 	}
@@ -228,4 +229,10 @@ func CallClear() {
 	} else { //unsupported platform
 		panic("Your platform is unsupported! I can't clear terminal screen :(")
 	}
+}
+
+// formats as rupiah with dot separators
+func FormatAsCurrency(val float64) string {
+	s := fmt.Sprintf("$%.2f", val)
+	return s
 }
