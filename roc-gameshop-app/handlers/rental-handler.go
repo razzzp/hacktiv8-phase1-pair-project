@@ -12,6 +12,7 @@ type RentalHandler interface {
 	GetById(id int) (*entities.Rental, error)
 	Create(rental entities.Rental) error
 	Update(id int, rental entities.RentalDTOUpdate) error
+	GetOverdues() ([]*entities.RentalOverdue, error)
 }
 
 type rentalHandler struct {
@@ -28,6 +29,15 @@ func (r *rentalHandler) GetAll() ([]entities.Rental, error) {
 	rentals, err := r.rentalRepo.GetAllRentals()
 	if err != nil {
 		fmt.Println("error getting All Rentals")
+		return nil, err
+	}
+	return rentals, nil
+}
+
+func (r *rentalHandler) GetOverdues() ([]*entities.RentalOverdue, error) {
+	rentals, err := r.rentalRepo.GetRentalsOverdue()
+	if err != nil {
+		fmt.Println("error getting All Rentals Overdues")
 		return nil, err
 	}
 	return rentals, nil
