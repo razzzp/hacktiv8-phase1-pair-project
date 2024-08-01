@@ -6,19 +6,19 @@ import (
 	"roc-gameshop-app/entities"
 )
 
-type GameRepo interface {
+type GamesRepo interface {
 	GetAllGames(name string, limit int, start int) ([]*entities.Game, error)
 	CreateGame(game entities.Game) error
 	UpdateGame(game entities.Game) error
 	GetGameById(id int) (*entities.Game, error)
 }
 
-type gameRepo struct {
+type gamesRepo struct {
 	db *sql.DB
 }
 
 // CreateGame implements GameRepo.
-func (gR *gameRepo) CreateGame(game entities.Game) error {
+func (gR *gamesRepo) CreateGame(game entities.Game) error {
 	query := `INSERT INTO Games(
 		Name,Description,Genre,SalePrice,RentalPrice,Studio,Stock
 	) VALUES (
@@ -41,10 +41,11 @@ func (gR *gameRepo) CreateGame(game entities.Game) error {
 }
 
 // GetAllGames implements GameRepo.
-func (gR *gameRepo) GetAllGames(name string, limit int, start int) ([]*entities.Game, error) {
+func (gR *gamesRepo) GetAllGames(name string, limit int, start int) ([]*entities.Game, error) {
 
 	var rows *sql.Rows
 	var err error
+	nameQry := fmt.Sprintf("%%%s%%", name)
 	if name == "" {
 		query := `
 		SELECT * FROM Games
@@ -54,7 +55,7 @@ func (gR *gameRepo) GetAllGames(name string, limit int, start int) ([]*entities.
 		query := `
 		SELECT * FROM Games WHERE Name LIKE ?
 		`
-		rows, err = gR.db.Query(query, name)
+		rows, err = gR.db.Query(query, nameQry)
 	}
 	if err != nil {
 		return nil, err
@@ -83,7 +84,7 @@ func (gR *gameRepo) GetAllGames(name string, limit int, start int) ([]*entities.
 }
 
 // GetGameById implements GameRepo.
-func (gR *gameRepo) GetGameById(id int) (*entities.Game, error) {
+func (gR *gamesRepo) GetGameById(id int) (*entities.Game, error) {
 
 	query := `SELECT * FROM Games WHERE GameId = ?`
 	rows, err := gR.db.Query(query, id)
@@ -113,7 +114,7 @@ func (gR *gameRepo) GetGameById(id int) (*entities.Game, error) {
 }
 
 // UpdateGame implements GameRepo.
-func (gR *gameRepo) UpdateGame(game entities.Game) error {
+func (gR *gamesRepo) UpdateGame(game entities.Game) error {
 	query := `UPDATE Games
 		SET Name=?,Description=?,Genre=?,SalePrice=?,RentalPrice=?,Studio=?,Stock=?
 		WHERE GameId = ?`
@@ -134,8 +135,8 @@ func (gR *gameRepo) UpdateGame(game entities.Game) error {
 	return nil
 }
 
-func NewGameRepo(db *sql.DB) GameRepo {
-	return &gameRepo{
+func NewGamesRepo(db *sql.DB) GamesRepo {
+	return &gamesRepo{
 		db: db,
 	}
 }

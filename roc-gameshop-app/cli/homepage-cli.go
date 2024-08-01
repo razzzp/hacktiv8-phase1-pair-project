@@ -42,7 +42,7 @@ func (hpc *homePageCli) HandleRoute(args RouteArgs, session *Session) {
 		}
 		switch input {
 		case 1:
-			// TODO
+			hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{})
 			return
 		case 2:
 			// TODO

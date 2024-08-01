@@ -19,7 +19,7 @@ func TestGamesRepo(t *testing.T) {
 	}
 	defer db.Close()
 
-	gameRepo := repos.NewGameRepo(db)
+	gameRepo := repos.NewGamesRepo(db)
 	result, err := gameRepo.GetAllGames("", 0, 0)
 	if err != nil {
 		log.Fatal(err)
