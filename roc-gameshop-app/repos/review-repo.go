@@ -36,6 +36,7 @@ func (rR *reviewRepo) GetGameReviews(gameId int) ([]*entities.ReviewPerGame, err
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	reviews := []*entities.ReviewPerGame{}
 	for rows.Next() {
@@ -66,6 +67,8 @@ func (rR *reviewRepo) GetGameAvgRating(gameId int) (*float64, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	var avgRating float64
 	for rows.Next() {
 		err = rows.Scan(

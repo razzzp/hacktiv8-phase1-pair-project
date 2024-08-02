@@ -23,21 +23,20 @@ func NewAuthHandler(userRepo repos.UserRepo) AuthHandler {
 
 func (a *authHandler) Login(email, password string) (*entities.User, error) {
 	if email == "" {
-		return nil, fmt.Errorf("Email can't be empty")
+		return nil, fmt.Errorf("email can't be empty")
 	}
 	if password == "" {
-		return nil, fmt.Errorf("Password can't be empty")
+		return nil, fmt.Errorf("password can't be empty")
 	}
 	user, err := a.userRepo.GetUserByEmail(email)
 	if err != nil {
-		fmt.Println("error getting user by email")
-		return nil, err
+		return nil, fmt.Errorf("invalid username and password")
 	}
 
 	ok := helpers.ComparePasswords(user.PasswordHash, []byte(password))
 
 	if !ok {
-		return nil, fmt.Errorf("Invalid username and password")
+		return nil, fmt.Errorf("invalid username and password")
 	} else {
 		return user, nil
 	}

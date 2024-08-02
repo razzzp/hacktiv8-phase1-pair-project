@@ -44,6 +44,7 @@ func (u *userRepo) GetAllUsers() ([]entities.User, error) {
 		return nil, err
 	}
 	defer rows.Close()
+
 	users := []entities.User{}
 	for rows.Next() {
 		user := entities.User{}
@@ -86,6 +87,7 @@ func (u *userRepo) GetUserById(id int) (*entities.User, error) {
 		return nil, err
 	}
 	defer rows.Close()
+
 	user := entities.User{}
 	found := false
 	for rows.Next() {
