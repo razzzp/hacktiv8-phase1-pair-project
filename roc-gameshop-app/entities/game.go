@@ -9,4 +9,5 @@ type Game struct {
 	RentalPrice float64
 	Studio      string
 	Stock       int
+	IsDeleted   bool
 }

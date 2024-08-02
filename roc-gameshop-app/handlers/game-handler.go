@@ -26,6 +26,7 @@ type GamesHandler interface {
 	CreateGame(game entities.Game) error
 	GameToDTO(game *entities.Game) GameDto
 	ValidateGameDto(gameDto *GameDto) (*entities.Game, error)
+	DeleteGame(gameId int) error
 }
 
 type gamesHandler struct {
@@ -36,6 +37,11 @@ func NewGamesHandler(gamesRepo repos.GamesRepo) GamesHandler {
 	return &gamesHandler{
 		gamesRepo: gamesRepo,
 	}
+}
+
+// DeleteGame implements GamesHandler.
+func (g *gamesHandler) DeleteGame(gameId int) error {
+	return g.gamesRepo.DeleteGame(gameId)
 }
 
 // ValidateGameDto implements GamesHandler.

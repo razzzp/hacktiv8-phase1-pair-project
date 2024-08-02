@@ -181,7 +181,17 @@ func (gDC *gameDetailsCli) GetAdminActions(game *entities.Game, session *Session
 		{
 			Name: "Delete Game",
 			ActionFunc: func() {
-				// TODO
+				confirm := PromptUserForString("Are you sure you want to delete this game? (y/n)", "n", gDC.reader)
+				if strings.EqualFold(confirm, "y") {
+					err := gDC.gameHandler.DeleteGame(game.GameId)
+					if err != nil {
+						fmt.Printf("Failed to delete game: %v", err)
+					} else {
+						fmt.Printf("Game '%s' successfully deleted.", game.Name)
+						time.Sleep(time.Second)
+						gDC.router.Pop()
+					}
+				}
 			},
 		},
 	}
