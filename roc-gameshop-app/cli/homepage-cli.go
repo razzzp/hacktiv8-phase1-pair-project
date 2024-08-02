@@ -44,7 +44,7 @@ func (hpc *homePageCli) GetUserActions(session *Session) []Action {
 		//
 		result = append(result, Action{Name: "View Reviews Report", ActionFunc: func() {
 			// TODO
-			// hpc.router.Push(routes.REVIEWS_REPORT_ROUTE, RouteArgs{})
+			hpc.router.Push(routes.REVIEWS_REPORT_ROUTE, RouteArgs{})
 		}})
 	} else {
 		// normal user actions

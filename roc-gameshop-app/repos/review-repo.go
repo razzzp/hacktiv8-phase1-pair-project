@@ -10,6 +10,7 @@ type ReviewRepo interface {
 	GetGameReviews(gameId int) ([]*entities.ReviewPerGame, error)
 	GetGameAvgRating(gameId int) (*float64, error)
 	CreateReview(review entities.Review) error
+	GetAvgRatingPerGame() ([]*entities.AvgRatingPerGame, error)
 }
 
 type reviewRepo struct {
@@ -96,4 +97,43 @@ func (rR *reviewRepo) CreateReview(review entities.Review) error {
 	}
 	fmt.Println("Success creating a review")
 	return nil
+}
+
+func (rR *reviewRepo) GetAvgRatingPerGame() ([]*entities.AvgRatingPerGame, error) {
+	query :=
+		`
+		SELECT 
+			g.Name AS GameName,
+			ROUND(AVG(r.Rating), 2) AS AverageRating
+		FROM 
+			Reviews r
+		JOIN 
+			Games g ON r.GameId = g.GameId
+		GROUP BY 
+			g.Name
+		ORDER BY 
+			AverageRating DESC;
+		`
+
+	rows, err := rR.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	ratings := []*entities.AvgRatingPerGame{}
+	for rows.Next() {
+		rating := entities.AvgRatingPerGame{}
+
+		err = rows.Scan(
+			&rating.GameName, &rating.AvgRating,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		ratings = append(ratings, &rating)
+	}
+
+	return ratings, nil
 }

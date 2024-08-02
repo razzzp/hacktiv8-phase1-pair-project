@@ -14,3 +14,8 @@ type Review struct {
 	Rating    float64
 	ReviewMsg string
 }
+
+type AvgRatingPerGame struct {
+	GameName  string
+	AvgRating float64
+}
