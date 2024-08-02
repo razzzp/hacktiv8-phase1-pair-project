@@ -47,8 +47,7 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	// logic of game details page goes here
-	// TODO
+
 	fmt.Println("Game Details Page")
 	fmt.Println(game.Name)
 	fmt.Println("")
@@ -109,6 +108,8 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 								RentDays:  0,
 							}
 							session.CurrentCart.AddItem(&ci)
+							fmt.Println("Added to cart")
+							time.Sleep(time.Second)
 						},
 					},
 				}
@@ -135,8 +136,8 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 					return
 				}
 				if session.CurrentUser == nil {
-					fmt.Println("You must logged in to make a rental")
-					time.Sleep(time.Second)
+					// redirect to login page
+					gDC.router.Push(routes.LOGIN_ROUTE, RouteArgs{})
 					return
 				} else {
 					rental := entities.Rental{

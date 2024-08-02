@@ -23,7 +23,7 @@ func (u *userRepo) CreateUser(user entities.User) error {
 	query := `
 	INSERT INTO Users (Name, Role, Email, PhoneNumber, PasswordHash)
 	VALUES (?,?,?,?,?)`
-
+	fmt.Println("role: ", user.Role)
 	_, err := u.db.Exec(query, user.Name, user.Role, user.Email, user.PhoneNumber, user.PasswordHash)
 	if err != nil {
 		fmt.Println("Error executing create user query")
@@ -47,7 +47,7 @@ func (u *userRepo) GetAllUsers() ([]entities.User, error) {
 	users := []entities.User{}
 	for rows.Next() {
 		user := entities.User{}
-		err := rows.Scan(&user.UserId, &user.Name, &user.Email, &user.Role, &user.PhoneNumber, &user.PasswordHash)
+		err := rows.Scan(&user.UserId, &user.Name, &user.Role, &user.Email, &user.PhoneNumber, &user.PasswordHash)
 		if err != nil {
 			fmt.Println("Error scanning returned users data")
 			return nil, err
@@ -65,7 +65,7 @@ func (u *userRepo) UpdateUser(id int, user entities.User) error {
 		SET Name = ?, Email = ?, Role = ?, PhoneNumber = ?, PasswordHash = ?
 		WHERE UserId = ?
 	`
-	_, err := u.db.Exec(query, user.Name, user.Role, user.Email, user.PhoneNumber, user.PasswordHash, id)
+	_, err := u.db.Exec(query, user.Name, user.Email, user.Role, user.PhoneNumber, user.PasswordHash, id)
 	if err != nil {
 		fmt.Println("Error executing update user query")
 		return err
@@ -89,7 +89,7 @@ func (u *userRepo) GetUserById(id int) (*entities.User, error) {
 	user := entities.User{}
 	found := false
 	for rows.Next() {
-		err := rows.Scan(&user.UserId, &user.Name, &user.Email, &user.Role, &user.PhoneNumber, &user.PasswordHash)
+		err := rows.Scan(&user.UserId, &user.Name, &user.Role, &user.Email, &user.PhoneNumber, &user.PasswordHash)
 		if err != nil {
 			fmt.Println("Error scanning returned user data")
 			return nil, err

@@ -26,20 +26,19 @@ func NewGamesCli(router Router, reader *bufio.Reader, gamesHandler handlers.Game
 }
 
 func (gC *gamesCli) HandleRoute(args RouteArgs, session *Session) {
+
+	games, err := gC.gamesHandler.GetAll(args["gameName"], 10, 1)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Search Results:")
+	gamesTable := table.New("No", "Name", "Rating", "Sale Price", "Stock")
+	for _, game := range games {
+		gamesTable.AddRow(game.GameId, game.Name, game.Genre, game.SalePrice, game.Stock).WithPadding(1)
+	}
+	gamesTable.Print()
 gameLoop:
 	for {
-
-		games, err := gC.gamesHandler.GetAll(args["gameName"], 10, 1)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println("Search Results:")
-		gamesTable := table.New("No", "Name", "Rating", "Sale Price", "Stock")
-		for _, game := range games {
-			gamesTable.AddRow(game.GameId, game.Name, game.Genre, game.SalePrice, game.Stock).WithPadding(1)
-		}
-		gamesTable.Print()
-
 		actions := []string{
 			"View Game",
 			"Search Again",
@@ -59,7 +58,6 @@ gameLoop:
 		action = strings.TrimSpace(action)
 		switch action {
 		case "1":
-			//TODO
 			fmt.Printf("Enter a game you want to view: ")
 			gameId, err := gC.reader.ReadString('\n')
 			if err != nil {
@@ -76,7 +74,16 @@ gameLoop:
 			gC.router.Push(routes.GAME_DETAILS_ROUTE, RouteArgs{"gameId": gameId})
 			return
 		case "2":
-			continue
+			//get game name to search
+			fmt.Printf("Enter game name to search: ")
+			name, err := gC.reader.ReadString('\n')
+			if err != nil {
+				fmt.Println("error reading game name input")
+				return
+			}
+			name = strings.TrimSpace(name)
+			gC.router.Push(routes.GAMES_ROUTE, RouteArgs{"gameName": name})
+			return
 		case "3":
 			gC.router.Push(routes.CART_ROUTE, RouteArgs{})
 			return

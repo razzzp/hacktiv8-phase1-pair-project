@@ -31,9 +31,26 @@ func (hpc *homePageCli) GetUserActions(session *Session) []Action {
 		name = strings.TrimSpace(name)
 		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{"gameName": name})
 	}})
-	result = append(result, Action{Name: "View Cart", ActionFunc: func() {
-		hpc.router.Push(routes.CART_ROUTE, RouteArgs{})
-	}})
+	if session.CurrentUser != nil && session.CurrentUser.IsAdmin() {
+		// admin actions
+		result = append(result, Action{Name: "View Sales Report", ActionFunc: func() {
+			hpc.router.Push(routes.SALES_REPORT_ROUTE, RouteArgs{})
+		}})
+		//
+		result = append(result, Action{Name: "View Rentals Overdue", ActionFunc: func() {
+			hpc.router.Push(routes.RENTALS_OVERDUE_ROUTE, RouteArgs{})
+		}})
+		//
+		result = append(result, Action{Name: "View Reviews Report", ActionFunc: func() {
+			// TODO
+			// hpc.router.Push(routes.REVIEWS_REPORT_ROUTE, RouteArgs{})
+		}})
+	} else {
+		// normal user actions
+		result = append(result, Action{Name: "View Cart", ActionFunc: func() {
+			hpc.router.Push(routes.CART_ROUTE, RouteArgs{})
+		}})
+	}
 	// only append login/register if not logged in
 	if session.CurrentUser == nil {
 		result = append(result, Action{Name: "Login", ActionFunc: func() {
@@ -43,19 +60,6 @@ func (hpc *homePageCli) GetUserActions(session *Session) []Action {
 			hpc.router.Push(routes.REGISTER_ROUTE, RouteArgs{})
 		}})
 	} else {
-		//display report if admin is logged in
-		role := strings.ToLower(session.CurrentUser.Role)
-		if role == "admin" {
-			result = append(result, Action{Name: "View Sales Report", ActionFunc: func() {
-				//TODO
-			}})
-			result = append(result, Action{Name: "View Rentals Overdue Report", ActionFunc: func() {
-				hpc.router.Push(routes.RENTALS_OVERDUE_ROUTE, RouteArgs{})
-			}})
-			result = append(result, Action{Name: "View Reviews Report", ActionFunc: func() {
-				//TODO
-			}})
-		}
 		// allow logout
 		result = append(result, Action{Name: "Logout", ActionFunc: func() {
 			session.CurrentUser = nil
@@ -72,6 +76,9 @@ func (hpc *homePageCli) HandleRoute(args RouteArgs, session *Session) {
 
 	fmt.Println("Welcome to ROC Gameshop")
 	fmt.Println("")
+	if session.CurrentUser != nil {
+		fmt.Printf("Welcome back, %s\n\n", session.CurrentUser.Name)
+	}
 
 	// get user actions
 	actions := hpc.GetUserActions(session)

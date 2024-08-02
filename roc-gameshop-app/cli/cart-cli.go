@@ -44,31 +44,35 @@ func (cc *cartCli) processCartItem(cartItem *CartItem, total *float64, session *
 	}
 }
 
-func (cc *cartCli) checkout(session *Session) error {
+func (cc *cartCli) checkout(session *Session) (float64, error) {
 	total := 0.0
 
 	for i, cartItem := range session.CurrentCart.Items {
 		err := cc.processCartItem(cartItem, &total, session)
 		if err != nil {
 			fmt.Printf("Failed to process cart item no. %d, for game: %s\n", i+1, cartItem.Game.Name)
-			return err
+			return 0, err
 		}
 	}
-	fmt.Printf("Thank you for your purchase! Total: Rp.%.0f\n", total)
-	return nil
+	return total, nil
 }
 
 func (cc *cartCli) GetUserActions(session *Session) []Action {
 	result := []Action{}
 	// checkout cart
 	result = append(result, Action{Name: "Check Out", ActionFunc: func() {
+		if len(session.CurrentCart.Items) == 0 {
+			fmt.Println("Cannot checkout, cart is empty")
+			time.Sleep(time.Second)
+			return
+		}
 		if session.CurrentUser == nil {
 			// have to login first
 			cc.router.Push(routes.LOGIN_ROUTE, RouteArgs{})
 			return
 		} else {
 			for {
-				err := cc.checkout(session)
+				total, err := cc.checkout(session)
 				if err != nil {
 					fmt.Println(err)
 
@@ -80,9 +84,12 @@ func (cc *cartCli) GetUserActions(session *Session) []Action {
 					// else stay on same page
 					break
 				} else {
+					// clear cart afterwards
+					session.CurrentCart.Items = []*CartItem{}
+					//
 					time.Sleep(time.Second)
 					// go back to home
-					cc.router.Push(routes.HOME_PAGE_ROUTE, RouteArgs{})
+					cc.router.Push(routes.CART_ROUTE, RouteArgs{"msg": fmt.Sprintf("Thank you for your purchase! Total: %s\n", FormatAsCurrency(total))})
 					return
 				}
 			}
@@ -108,9 +115,9 @@ func (cc *cartCli) GetUserActions(session *Session) []Action {
 
 func getSubtotalAsString(cartItem *CartItem) string {
 	if cartItem.BuyOrRent == "Buy" {
-		return fmt.Sprintf("Rp. %.0f", cartItem.Game.SalePrice*float64(cartItem.Qty))
+		return FormatAsCurrency(cartItem.Game.SalePrice * float64(cartItem.Qty))
 	} else {
-		return fmt.Sprintf("Rp. %.0f", cartItem.Game.RentalPrice*float64(cartItem.RentDays))
+		return FormatAsCurrency(cartItem.Game.RentalPrice * float64(cartItem.RentDays))
 	}
 }
 
@@ -134,8 +141,12 @@ func (cc *cartCli) HandleRoute(args RouteArgs, session *Session) {
 	}
 	cartTable.Print()
 
+	// print msg passed
 	fmt.Println("")
-
+	if msg := args["msg"]; msg != "" {
+		fmt.Println(msg)
+	}
+	fmt.Println("")
 	// get user actions
 	actions := cc.GetUserActions(session)
 	PromptUserForActions(actions, cc.reader)
