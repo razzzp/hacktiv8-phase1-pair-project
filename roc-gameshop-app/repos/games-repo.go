@@ -92,6 +92,7 @@ func (gR *gamesRepo) GetGameById(id int) (*entities.Game, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	if rows.Next() {
 		var game entities.Game
