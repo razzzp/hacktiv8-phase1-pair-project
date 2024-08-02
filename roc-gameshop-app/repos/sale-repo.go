@@ -27,7 +27,7 @@ func (s *saleRepo) CreateSale(sale *entities.Sale) error {
 		fmt.Println("Error executing create sale query")
 		return err
 	}
-	fmt.Printf("Success creating sale for UserId %d and GameId %d\n", sale.UserId, sale.GameId)
+	// fmt.Printf("Success creating sale for UserId %d and GameId %d\n", sale.UserId, sale.GameId)
 	return nil
 }
 

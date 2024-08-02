@@ -38,7 +38,6 @@ func (oC *overdueCli) HandleRoute(args RouteArgs, session *Session) {
 	overduesTable.Print()
 
 	fmt.Println("")
-	fmt.Println("Actions:")
 	actions := []Action{
 		{
 			Name: "Back",
