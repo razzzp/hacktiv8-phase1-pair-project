@@ -12,10 +12,16 @@ type UserHandler interface {
 	GetById(id int) (*entities.User, error)
 	Create(user entities.User) error
 	Update(id int, user entities.User) error
+	GetUserByEmail(email string) (*entities.User, error)
 }
 
 type userHandler struct {
 	userRepo repos.UserRepo
+}
+
+// GetUserByEmail implements UserHandler.
+func (u *userHandler) GetUserByEmail(email string) (*entities.User, error) {
+	return u.userRepo.GetUserByEmail(email)
 }
 
 func NewUserHandler(userRepo repos.UserRepo) UserHandler {

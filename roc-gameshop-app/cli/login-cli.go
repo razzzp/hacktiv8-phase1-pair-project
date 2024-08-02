@@ -25,6 +25,7 @@ func NewLoginCli(router Router, reader *bufio.Reader, authHandler handlers.AuthH
 func (aC *loginCli) HandleRoute(args RouteArgs, session *Session) {
 
 	fmt.Println("Login User")
+	fmt.Println("")
 
 loginLopp:
 	for {
