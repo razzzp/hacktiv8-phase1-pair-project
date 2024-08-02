@@ -11,10 +11,21 @@ type GamesRepo interface {
 	CreateGame(game entities.Game) error
 	UpdateGame(game entities.Game) error
 	GetGameById(id int) (*entities.Game, error)
+	DeleteGame(id int) error
 }
 
 type gamesRepo struct {
 	db *sql.DB
+}
+
+// DeleteGame implements GamesRepo.
+func (gR *gamesRepo) DeleteGame(id int) error {
+	query := `UPDATE Games SET IsDeleted = TRUE WHERE GameId = ?`
+	_, err := gR.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // CreateGame implements GameRepo.
@@ -48,18 +59,19 @@ func (gR *gamesRepo) GetAllGames(name string, limit int, start int) ([]*entities
 	nameQry := fmt.Sprintf("%%%s%%", name)
 	if name == "" {
 		query := `
-		SELECT * FROM Games
+		SELECT * FROM Games WHERE IsDeleted = FALSE
 		`
 		rows, err = gR.db.Query(query)
 	} else {
 		query := `
-		SELECT * FROM Games WHERE Name LIKE ?
+		SELECT * FROM Games WHERE Name LIKE ? AND IsDeleted = FALSE
 		`
 		rows, err = gR.db.Query(query, nameQry)
 	}
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	result := []*entities.Game{}
 	for rows.Next() {
@@ -73,6 +85,7 @@ func (gR *gamesRepo) GetAllGames(name string, limit int, start int) ([]*entities
 			&game.RentalPrice,
 			&game.Studio,
 			&game.Stock,
+			&game.IsDeleted,
 		)
 		if err != nil {
 			return nil, err
@@ -86,11 +99,12 @@ func (gR *gamesRepo) GetAllGames(name string, limit int, start int) ([]*entities
 // GetGameById implements GameRepo.
 func (gR *gamesRepo) GetGameById(id int) (*entities.Game, error) {
 
-	query := `SELECT * FROM Games WHERE GameId = ?`
+	query := `SELECT * FROM Games WHERE GameId = ? AND IsDeleted = FALSE`
 	rows, err := gR.db.Query(query, id)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	if rows.Next() {
 		var game entities.Game
@@ -103,6 +117,7 @@ func (gR *gamesRepo) GetGameById(id int) (*entities.Game, error) {
 			&game.RentalPrice,
 			&game.Studio,
 			&game.Stock,
+			&game.IsDeleted,
 		)
 		if err != nil {
 			return nil, err

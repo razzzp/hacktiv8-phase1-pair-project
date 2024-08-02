@@ -3,6 +3,7 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"roc-gameshop-app/routes"
 	"strings"
 )
@@ -53,11 +54,8 @@ func (hpc *homePageCli) GetUserActions(session *Session) []Action {
 	}
 	// only append login/register if not logged in
 	if session.CurrentUser == nil {
-		result = append(result, Action{Name: "Login", ActionFunc: func() {
-			hpc.router.Push(routes.LOGIN_ROUTE, RouteArgs{})
-		}})
-		result = append(result, Action{Name: "Register", ActionFunc: func() {
-			hpc.router.Push(routes.REGISTER_ROUTE, RouteArgs{})
+		result = append(result, Action{Name: "Login/Register", ActionFunc: func() {
+			hpc.router.Push(routes.LOGIN_REGISTER, RouteArgs{})
 		}})
 	} else {
 		// allow logout
@@ -67,7 +65,8 @@ func (hpc *homePageCli) GetUserActions(session *Session) []Action {
 		}})
 	}
 	result = append(result, Action{Name: "Exit", ActionFunc: func() {
-		hpc.router.Pop()
+		// exit
+		os.Exit(0)
 	}})
 	return result
 }

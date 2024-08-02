@@ -29,96 +29,42 @@ func NewGameDetailsCli(router Router, reader *bufio.Reader, gameHandler handlers
 	}
 }
 
-func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
-	id, err := strconv.Atoi(args["gameId"])
-	if err != nil {
-		fmt.Println("Error converting gameId ", err)
-		return
-	}
-	game, err := gDC.gameHandler.GetById(id)
-	if err != nil {
-		fmt.Println(err)
-	}
-	reviews, err := gDC.reviewHandler.GetByGameId(id)
-	if err != nil {
-		fmt.Println(err)
-	}
-	rating, err := gDC.reviewHandler.GetAvgRating(id)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println("Game Details Page")
-	fmt.Println(game.Name)
-	fmt.Println("")
-	fmt.Printf("Genre: %s\n", game.Genre)
-	fmt.Printf("Description: %s\n", game.Description)
-	fmt.Printf("Average Rating: %.2f\n", *rating)
-	fmt.Printf("Sale Price: %.2f\n", game.SalePrice)
-	fmt.Printf("Rent Price: %.2f/day\n", game.RentalPrice)
-	fmt.Println("Reviews:")
-	fmt.Println("")
-	for i, review := range reviews {
-		fmt.Printf("%d. %s     Rating: %.2f\n", i+1, review.UserName, review.Rating)
-		fmt.Println(review.ReviewMsg)
-	}
-	fmt.Println("")
+func (gDC *gameDetailsCli) GetCustomerActions(game *entities.Game, session *Session) []Action {
 	actions := []Action{
 		{
-			Name: "Buy",
+			Name: "Add To Cart",
 			ActionFunc: func() {
-				subActions := []Action{
-					{
-						Name: "Buy Now",
-						ActionFunc: func() {
-							//TODO
-							// fmt.Printf("Enter game qty to buy: ")
-							// qty, err := gDC.reader.ReadString('\n')
-							// if err != nil {
-							// 	fmt.Println("Error reading game qty input", err)
-							// 	time.Sleep(time.Second)
-							// }
-							// qty = strings.TrimSpace(qty)
-							// qtyInt, err := strconv.Atoi(qty)
-							// if err != nil {
-							// 	fmt.Println("Invalid qty input, integer only")
-							// 	time.Sleep(time.Second)
-							// }
-						},
-					},
-					{
-						Name: "Add To Cart",
-						ActionFunc: func() {
-							fmt.Printf("Enter game qty to buy: ")
-							qty, err := gDC.reader.ReadString('\n')
-							if err != nil {
-								fmt.Println("Error reading game qty input", err)
-								time.Sleep(time.Second)
-							}
-							qty = strings.TrimSpace(qty)
-							qtyInt, err := strconv.Atoi(qty)
-							if err != nil {
-								fmt.Println("Invalid qty input, integer only")
-								time.Sleep(time.Second)
-							}
-							ci := CartItem{
-								Game:      game,
-								Qty:       qtyInt,
-								BuyOrRent: "Buy",
-								RentDays:  0,
-							}
-							session.CurrentCart.AddItem(&ci)
-							fmt.Println("Added to cart")
-							time.Sleep(time.Second)
-						},
-					},
+				fmt.Printf("Enter game qty to buy: ")
+				qty, err := gDC.reader.ReadString('\n')
+				if err != nil {
+					fmt.Println("Error reading game qty input", err)
+					time.Sleep(time.Second)
 				}
-				PromptUserForActions(subActions, gDC.reader)
+				qty = strings.TrimSpace(qty)
+				qtyInt, err := strconv.Atoi(qty)
+				if err != nil {
+					fmt.Println("Invalid qty input, integer only")
+					time.Sleep(time.Second)
+				}
+				ci := CartItem{
+					Game:      game,
+					Qty:       qtyInt,
+					BuyOrRent: "Buy",
+					RentDays:  0,
+				}
+				session.CurrentCart.AddItem(&ci)
+				fmt.Println("Added to cart")
+				time.Sleep(time.Second)
 			},
 		},
 		{
 			Name: "Rent",
 			ActionFunc: func() {
+				if session.CurrentUser == nil {
+					// redirect to login page
+					gDC.router.Push(routes.LOGIN_REGISTER, RouteArgs{})
+					return
+				}
 				fmt.Printf("Enter End Date of your rental (yyyy--mm--dd): ")
 				endDate, err := gDC.reader.ReadString('\n')
 				if err != nil {
@@ -135,24 +81,19 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 					time.Sleep(time.Second)
 					return
 				}
-				if session.CurrentUser == nil {
-					// redirect to login page
-					gDC.router.Push(routes.LOGIN_ROUTE, RouteArgs{})
-					return
-				} else {
-					rental := entities.Rental{
-						UserId:    session.CurrentUser.UserId,
-						GameId:    game.GameId,
-						StartDate: time.Now(),
-						EndDate:   ed,
-						Status:    "Not Returned",
-					}
-					err = gDC.rentalHandler.Create(rental)
-					if err != nil {
-						fmt.Println(err)
-					}
-					time.Sleep(time.Second)
+
+				rental := entities.Rental{
+					UserId:    session.CurrentUser.UserId,
+					GameId:    game.GameId,
+					StartDate: time.Now(),
+					EndDate:   ed,
+					Status:    "Not Returned",
 				}
+				err = gDC.rentalHandler.Create(rental)
+				if err != nil {
+					fmt.Println(err)
+				}
+				time.Sleep(time.Second)
 			},
 		},
 		{
@@ -165,8 +106,7 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 			Name: "Add Review",
 			ActionFunc: func() {
 				if session.CurrentUser == nil {
-					fmt.Println("You must logged in to add review")
-					time.Sleep(time.Second)
+					gDC.router.Push(routes.LOGIN_REGISTER, RouteArgs{})
 					return
 				} else {
 					fmt.Printf("Enter Rating (0.0 - 5.0): ")
@@ -211,13 +151,109 @@ func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
 
 			},
 		},
+	}
+
+	return actions
+}
+
+func (gDC *gameDetailsCli) GetAdminActions(game *entities.Game, session *Session) []Action {
+	actions := []Action{
 		{
-			Name: "Back",
+			Name: "Edit Game",
 			ActionFunc: func() {
-				gDC.router.Pop()
+				gameDto := gDC.gameHandler.GameToDTO(game)
+				fmt.Println("Please enter details to update (leave empty to not modify)")
+				// update game dto from user input
+				gameDto.Name = PromptUserForString(fmt.Sprintf("Enter new name (%s):\n", gameDto.Name), gameDto.Name, gDC.reader)
+				gameDto.Genre = PromptUserForString(fmt.Sprintf("Enter new genre (%s):\n", gameDto.Genre), gameDto.Genre, gDC.reader)
+				gameDto.Description = PromptUserForString(fmt.Sprint("Enter new description:\n", ""), gameDto.Description, gDC.reader)
+				gameDto.SalePrice = PromptUserForString(fmt.Sprintf("Enter new sale price (%s):\n", gameDto.SalePrice), gameDto.SalePrice, gDC.reader)
+				gameDto.RentalPrice = PromptUserForString(fmt.Sprintf("Enter new rent price (%s/day):\n", gameDto.RentalPrice), gameDto.RentalPrice, gDC.reader)
+
+				updateGame, err := gDC.gameHandler.ValidateGameDto(&gameDto)
+				if err != nil {
+					fmt.Printf("Error: %v", err)
+					time.Sleep(time.Second)
+				}
+
+				gDC.gameHandler.UpdateGame(*updateGame)
+			},
+		},
+		{
+			Name: "Delete Game",
+			ActionFunc: func() {
+				confirm := PromptUserForString("Are you sure you want to delete this game? (y/n)", "n", gDC.reader)
+				if strings.EqualFold(confirm, "y") {
+					err := gDC.gameHandler.DeleteGame(game.GameId)
+					if err != nil {
+						fmt.Printf("Failed to delete game: %v", err)
+					} else {
+						fmt.Printf("Game '%s' successfully deleted.", game.Name)
+						time.Sleep(time.Second)
+						gDC.router.Pop()
+					}
+				}
 			},
 		},
 	}
-	PromptUserForActions(actions, gDC.reader)
 
+	return actions
+}
+
+func (gDC *gameDetailsCli) GetActions(game *entities.Game, session *Session) []Action {
+	var result []Action
+	if session.CurrentUser != nil && session.CurrentUser.IsAdmin() {
+		result = gDC.GetAdminActions(game, session)
+	} else {
+		result = gDC.GetCustomerActions(game, session)
+	}
+	result = append(result, Action{
+		Name: "Back",
+		ActionFunc: func() {
+			gDC.router.Pop()
+		},
+	})
+
+	return result
+}
+
+func (gDC *gameDetailsCli) HandleRoute(args RouteArgs, session *Session) {
+	id, err := strconv.Atoi(args["gameId"])
+	if err != nil {
+		fmt.Println("Error converting gameId ", err)
+		return
+	}
+	game, err := gDC.gameHandler.GetById(id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	reviews, err := gDC.reviewHandler.GetByGameId(id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	rating, err := gDC.reviewHandler.GetAvgRating(id)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println("Game Details Page")
+	fmt.Println("")
+	fmt.Println(game.Name)
+	fmt.Println("")
+	fmt.Printf("Genre: %s\n", game.Genre)
+	fmt.Printf("Description: %s\n", game.Description)
+	fmt.Printf("Average Rating: %.2f\n", *rating)
+	fmt.Printf("Sale Price: %.2f\n", game.SalePrice)
+	fmt.Printf("Rent Price: %.2f/day\n", game.RentalPrice)
+	fmt.Println("")
+	fmt.Println("Reviews:")
+	fmt.Println("")
+	for i, review := range reviews {
+		fmt.Printf("%d. %s     Rating: %.2f\n", i+1, review.UserName, review.Rating)
+		fmt.Println(review.ReviewMsg)
+		fmt.Println("")
+	}
+
+	actions := gDC.GetActions(game, session)
+	PromptUserForActions(actions, gDC.reader)
 }

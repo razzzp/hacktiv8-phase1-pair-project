@@ -55,3 +55,4 @@ CREATE TABLE Rentals (
     FOREIGN KEY (UserId) REFERENCES Users(UserId),
     FOREIGN KEY (GameId) REFERENCES Games(GameId)
 );
+
