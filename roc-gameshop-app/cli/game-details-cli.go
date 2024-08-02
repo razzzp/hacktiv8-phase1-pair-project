@@ -173,6 +173,7 @@ func (gDC *gameDetailsCli) GetAdminActions(game *entities.Game, session *Session
 				updateGame, err := gDC.gameHandler.ValidateGameDto(&gameDto)
 				if err != nil {
 					fmt.Printf("Error: %v", err)
+					time.Sleep(time.Second)
 				}
 
 				gDC.gameHandler.UpdateGame(*updateGame)
