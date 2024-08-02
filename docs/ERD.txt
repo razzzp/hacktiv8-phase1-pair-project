@@ -1,0 +1,71 @@
+ERD Title: Video Game Store System
+
+Entities and Their Attributes
+A. Entity: Games
+   Attributes:
+     GameId (PK, AI) : INT
+     Name : VARCHAR(255)
+     Description : VARCHAR(255)
+     Genre : VARCHAR(255)
+     SalePrice : DECIMAL(10, 2)
+     RentalPrice : DECIMAL(10, 2)
+     Studio : VARCHAR(255)
+     Stock : INT
+B. Entity: Users
+   Attributes:
+     UserId (PK, AI) : INT
+     Name : VARCHAR(255)
+     Role : VARCHAR(255)
+     Email (UNIQUE) : VARCHAR(255)
+     PhoneNumber : VARCHAR(255)
+     PasswordHash : VARCHAR(255)
+C. Entity: Sales
+   Attributes:
+     SaleId (PK, AI) : INT
+     GameId (FK) : INT
+     UserId (FK) : INT
+     SaleDate : DATE
+     PurchasedPrice : DECIMAL(10, 2)
+     Quantity : INT
+D. Entity: Reviews
+   Attributes:
+     ReviewId (PK, AI) : INT
+     UserId (FK) : INT
+     GameId (FK) : INT
+     Rating : DECIMAL(3, 2)
+     ReviewMsg : VARCHAR(255)
+E. Entity: Rentals
+   Attributes:
+     RentalId (PK, AI) : INT
+     UserId (FK) : INT
+     GameId (FK) : INT
+     StartDate : DATE
+     EndDate : DATE
+     Status : VARCHAR(255)
+
+Relationships
+    Users to Sales: One to Many
+    Description: One user can have many sales transactions, but each sale is linked to only one user.
+
+    Games to Sales: One to Many
+    Description: One game can be sold in many sales transactions, but each sale transaction is linked to only one game.
+    
+    Users to Reviews: One to Many
+    Description: One user can write many reviews, but each review is written by only one user.
+
+    Games to Reviews: One to Many
+    Description: One game can have many reviews, but each review is written for only one game.
+
+    Users to Rentals: One to Many
+    Description: One user can have many rental transactions, but each rental transaction is linked to only one user.
+
+Games to Rentals: One to Many
+
+Description: One game can be rented in many rental transactions, but each rental transaction is linked to only one game.
+Integrity Constraints
+The Rating in Reviews should be a positive float less than or equal to 5.
+The Email in Users should be unique.
+Additional Notes
+The Sales table allows the system to handle the sale of games to users, tracking the quantity sold and the price at which it was sold.
+The Reviews table allows users to leave feedback on games, including a rating and a review message.
+The Rentals table tracks the rental transactions of games by users, including the start and end dates of the rental and its status.
