@@ -7,14 +7,13 @@ type Rental struct {
 	UserId    int
 	GameId    int
 	StartDate time.Time
-	EndDate   *time.Time
+	EndDate   time.Time
 	Status    string
 }
 
-type RentalDTO struct {
-	RentalId  string
-	UserId    string
-	GameId    string
+type RentalOverdue struct {
+	UserName  string
+	GameName  string
 	StartDate string
 	EndDate   string
 	Status    string

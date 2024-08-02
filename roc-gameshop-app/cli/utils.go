@@ -14,11 +14,6 @@ import (
 
 type RouteArgs map[string]string
 
-// contains list of items user wants to checkout
-type Cart struct {
-	// TODO
-}
-
 // for storing session data
 type Session struct {
 	// returns nil if not logged in
@@ -27,6 +22,12 @@ type Session struct {
 	// returns current cart
 	CurrentCart *Cart
 	// AddToCart()
+}
+
+func NewSession() *Session {
+	return &Session{
+		CurrentCart: &Cart{},
+	}
 }
 
 type Cli interface {
@@ -55,6 +56,13 @@ type StackItem struct {
 	args  RouteArgs
 }
 
+func NewStackItem(route string, args RouteArgs) StackItem {
+	return StackItem{
+		route: route,
+		args:  args,
+	}
+}
+
 type routerV1 struct {
 	routeClis map[string]Cli
 	backStack []StackItem
@@ -81,9 +89,11 @@ func (r *routerV1) AddRouteCli(route string, cli Cli) {
 func (r *routerV1) Push(route string, args RouteArgs) {
 	// push to stack
 	r.backStack = append(r.backStack, newStackItem(route, args))
+	// fmt.Println("push backstack: ", r.backStack)
 }
 
 func (r *routerV1) Pop() StackItem {
+	// fmt.Println("backStack", r.backStack)
 	// remove last element from stack
 	topStackItem := r.backStack[len(r.backStack)-1]
 	if len(r.backStack) > 0 {
@@ -145,11 +155,30 @@ func PromptUserForActionInput(reader *bufio.Reader) (int, error) {
 	return inputAsInt, nil
 }
 
+// asks for integer
+func PromptUserForInt(msg string, reader *bufio.Reader) (int, error) {
+	fmt.Print(msg)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return 0, err
+	}
+	input = strings.TrimSpace(input)
+
+	// convert to int
+	inputAsInt, err := strconv.Atoi(input)
+	if err != nil {
+		return 0, errors.New("please enter a valid number")
+	}
+
+	return inputAsInt, nil
+}
+
 // prints the given list of actions and asks
 // user to choose one
 // if valid choice
 func PromptUserForActions(actions []Action, reader *bufio.Reader) {
 	// prints actions
+	fmt.Println("Actions:")
 	for i, action := range actions {
 		fmt.Printf("%d. %s\n", i+1, action.Name)
 	}
@@ -200,4 +229,10 @@ func CallClear() {
 	} else { //unsupported platform
 		panic("Your platform is unsupported! I can't clear terminal screen :(")
 	}
+}
+
+// formats as rupiah with dot separators
+func FormatAsCurrency(val float64) string {
+	s := fmt.Sprintf("$%.2f", val)
+	return s
 }

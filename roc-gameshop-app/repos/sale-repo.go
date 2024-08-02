@@ -7,9 +7,8 @@ import (
 )
 
 type SaleRepo interface {
-	GetAllSales() ([]entities.Sale, error)
-	CreateSale(sale entities.Sale) error
-	UpdateSale(id int, sale entities.Sale) error
+	GetAllSales() ([]*entities.Sale, error)
+	CreateSale(sale *entities.Sale) error
 	GetSaleById(id int) (*entities.Sale, error)
 }
 
@@ -18,22 +17,22 @@ type saleRepo struct {
 }
 
 // Create Sale
-func (s *saleRepo) CreateSale(sale entities.Sale) error {
+func (s *saleRepo) CreateSale(sale *entities.Sale) error {
 	query := `
-	INSERT INTO sales (UserId, GameId, PriceId, StockId)
-	VALUES (?,?,?,?)`
+	INSERT INTO sales (UserId, GameId, SaleDate, PurchasedPrice, Quantity)
+	VALUES (?,?,?,?,?);`
 
-	_, err := s.db.Exec(query, sale.UserId, sale.GameId, sale.PriceId, sale.StockId)
+	_, err := s.db.Exec(query, sale.UserId, sale.GameId, sale.SaleDate, sale.PurchasedPrice, sale.Quantity)
 	if err != nil {
 		fmt.Println("Error executing create sale query")
 		return err
 	}
-	fmt.Printf("Success creating sale for UserId %d and GameId %d\n", sale.UserId, sale.GameId)
+	// fmt.Printf("Success creating sale for UserId %d and GameId %d\n", sale.UserId, sale.GameId)
 	return nil
 }
 
 // Get All Sales
-func (s *saleRepo) GetAllSales() ([]entities.Sale, error) {
+func (s *saleRepo) GetAllSales() ([]*entities.Sale, error) {
 	query := `SELECT * FROM sales`
 
 	rows, err := s.db.Query(query)
@@ -43,34 +42,18 @@ func (s *saleRepo) GetAllSales() ([]entities.Sale, error) {
 	}
 	defer rows.Close()
 
-	sales := []entities.Sale{}
+	sales := []*entities.Sale{}
 	for rows.Next() {
 		sale := entities.Sale{}
-		err := rows.Scan(&sale.SaleId, &sale.UserId, &sale.GameId, &sale.PriceId, &sale.StockId)
+		err := rows.Scan(&sale.SaleId, &sale.GameId, &sale.SaleId, &sale.SaleDate, &sale.PurchasedPrice, &sale.Quantity)
 		if err != nil {
 			fmt.Println("Error scanning returned sales data")
 			return nil, err
 		}
-		sales = append(sales, sale)
+		sales = append(sales, &sale)
 	}
 
 	return sales, nil
-}
-
-// Update Sale
-func (s *saleRepo) UpdateSale(id int, sale entities.Sale) error {
-	query := `
-		UPDATE sales
-		SET UserId = ?, GameId = ?, PriceId = ?, StockId = ?
-		WHERE SaleId = ?
-	`
-	_, err := s.db.Exec(query, sale.UserId, sale.GameId, sale.PriceId, sale.StockId, id)
-	if err != nil {
-		fmt.Println("Error executing update sale query")
-		return err
-	}
-	fmt.Println("Success updating sale")
-	return nil
 }
 
 // Get Sale By ID
@@ -81,7 +64,7 @@ func (s *saleRepo) GetSaleById(id int) (*entities.Sale, error) {
 
 	row := s.db.QueryRow(query, id)
 	sale := entities.Sale{}
-	err := row.Scan(&sale.SaleId, &sale.UserId, &sale.GameId, &sale.PriceId, &sale.StockId)
+	err := row.Scan(&sale.SaleId, &sale.GameId, &sale.SaleId, &sale.SaleDate, &sale.PurchasedPrice, &sale.Quantity)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			fmt.Println("No sale found with the given ID")

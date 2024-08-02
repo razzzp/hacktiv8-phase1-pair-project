@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"roc-gameshop-app/routes"
+	"strings"
 )
 
 type homePageCli struct {
@@ -21,11 +22,35 @@ func NewHomepageCli(router Router, reader *bufio.Reader) Cli {
 func (hpc *homePageCli) GetUserActions(session *Session) []Action {
 	result := []Action{}
 	result = append(result, Action{Name: "Search Games", ActionFunc: func() {
-		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{})
+		//get game name to search
+		fmt.Printf("Enter game name to search: ")
+		name, err := hpc.reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("error reading game name input")
+		}
+		name = strings.TrimSpace(name)
+		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{"gameName": name})
 	}})
-	result = append(result, Action{Name: "View Cart", ActionFunc: func() {
-		hpc.router.Push(routes.GAMES_ROUTE, RouteArgs{})
-	}})
+	if session.CurrentUser != nil && session.CurrentUser.IsAdmin() {
+		// admin actions
+		result = append(result, Action{Name: "View Sales Report", ActionFunc: func() {
+			hpc.router.Push(routes.SALES_REPORT_ROUTE, RouteArgs{})
+		}})
+		//
+		result = append(result, Action{Name: "View Rentals Overdue", ActionFunc: func() {
+			hpc.router.Push(routes.RENTALS_OVERDUE_ROUTE, RouteArgs{})
+		}})
+		//
+		result = append(result, Action{Name: "View Reviews Report", ActionFunc: func() {
+			// TODO
+			// hpc.router.Push(routes.REVIEWS_REPORT_ROUTE, RouteArgs{})
+		}})
+	} else {
+		// normal user actions
+		result = append(result, Action{Name: "View Cart", ActionFunc: func() {
+			hpc.router.Push(routes.CART_ROUTE, RouteArgs{})
+		}})
+	}
 	// only append login/register if not logged in
 	if session.CurrentUser == nil {
 		result = append(result, Action{Name: "Login", ActionFunc: func() {
@@ -51,6 +76,9 @@ func (hpc *homePageCli) HandleRoute(args RouteArgs, session *Session) {
 
 	fmt.Println("Welcome to ROC Gameshop")
 	fmt.Println("")
+	if session.CurrentUser != nil {
+		fmt.Printf("Welcome back, %s\n\n", session.CurrentUser.Name)
+	}
 
 	// get user actions
 	actions := hpc.GetUserActions(session)
