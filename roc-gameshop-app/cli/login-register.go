@@ -28,6 +28,13 @@ func (l *loginRegisterCli) GetActions(session *Session) []Action {
 		},
 	})
 
+	result = append(result, Action{
+		Name: "Back",
+		ActionFunc: func() {
+			l.router.Pop()
+		},
+	})
+
 	return result
 }
 
