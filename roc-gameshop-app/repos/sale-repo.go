@@ -19,7 +19,7 @@ type saleRepo struct {
 // Create Sale
 func (s *saleRepo) CreateSale(sale *entities.Sale) error {
 	query := `
-	INSERT INTO sales (UserId, GameId, SaleDate, PurchasedPrice, Quantity)
+	INSERT INTO Sales (UserId, GameId, SaleDate, PurchasedPrice, Quantity)
 	VALUES (?,?,?,?,?);`
 
 	_, err := s.db.Exec(query, sale.UserId, sale.GameId, sale.SaleDate, sale.PurchasedPrice, sale.Quantity)
@@ -33,7 +33,7 @@ func (s *saleRepo) CreateSale(sale *entities.Sale) error {
 
 // Get All Sales
 func (s *saleRepo) GetAllSales() ([]*entities.Sale, error) {
-	query := `SELECT * FROM sales`
+	query := `SELECT * FROM Sales`
 
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -59,10 +59,11 @@ func (s *saleRepo) GetAllSales() ([]*entities.Sale, error) {
 // Get Sale By ID
 func (s *saleRepo) GetSaleById(id int) (*entities.Sale, error) {
 	query := `
-		SELECT * FROM sales WHERE SaleId = ?
+		SELECT * FROM Sales WHERE SaleId = ?
 	`
 
 	row := s.db.QueryRow(query, id)
+
 	sale := entities.Sale{}
 	err := row.Scan(&sale.SaleId, &sale.GameId, &sale.SaleId, &sale.SaleDate, &sale.PurchasedPrice, &sale.Quantity)
 	if err != nil {

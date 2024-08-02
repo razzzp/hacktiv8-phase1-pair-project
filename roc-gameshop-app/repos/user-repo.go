@@ -23,7 +23,7 @@ func (u *userRepo) CreateUser(user entities.User) error {
 	query := `
 	INSERT INTO Users (Name, Role, Email, PhoneNumber, PasswordHash)
 	VALUES (?,?,?,?,?)`
-	fmt.Println("role: ", user.Role)
+	// fmt.Println("role: ", user.Role)
 	_, err := u.db.Exec(query, user.Name, user.Role, user.Email, user.PhoneNumber, user.PasswordHash)
 	if err != nil {
 		fmt.Println("Error executing create user query")
@@ -44,6 +44,7 @@ func (u *userRepo) GetAllUsers() ([]entities.User, error) {
 		return nil, err
 	}
 	defer rows.Close()
+
 	users := []entities.User{}
 	for rows.Next() {
 		user := entities.User{}
@@ -86,6 +87,7 @@ func (u *userRepo) GetUserById(id int) (*entities.User, error) {
 		return nil, err
 	}
 	defer rows.Close()
+
 	user := entities.User{}
 	found := false
 	for rows.Next() {

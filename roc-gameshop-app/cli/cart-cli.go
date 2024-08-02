@@ -68,7 +68,7 @@ func (cc *cartCli) GetUserActions(session *Session) []Action {
 		}
 		if session.CurrentUser == nil {
 			// have to login first
-			cc.router.Push(routes.LOGIN_ROUTE, RouteArgs{})
+			cc.router.Push(routes.LOGIN_REGISTER, RouteArgs{})
 			return
 		} else {
 			for {
@@ -89,6 +89,7 @@ func (cc *cartCli) GetUserActions(session *Session) []Action {
 					//
 					time.Sleep(time.Second)
 					// go back to home
+					cc.router.Pop()
 					cc.router.Push(routes.CART_ROUTE, RouteArgs{"msg": fmt.Sprintf("Thank you for your purchase! Total: %s\n", FormatAsCurrency(total))})
 					return
 				}
@@ -100,10 +101,12 @@ func (cc *cartCli) GetUserActions(session *Session) []Action {
 		input, err := PromptUserForInt("Enter item number to remove: ", cc.reader)
 		if err != nil {
 			// refresh
+			cc.router.Pop()
 			cc.router.Push(routes.CART_ROUTE, RouteArgs{})
 			return
 		}
 		session.CurrentCart.RemoveItem(input - 1)
+		cc.router.Pop()
 		cc.router.Push(routes.CART_ROUTE, RouteArgs{})
 	}})
 	// go back

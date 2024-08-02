@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"roc-gameshop-app/entities"
 	"roc-gameshop-app/handlers"
-	"roc-gameshop-app/routes"
 	"strings"
-	"time"
 )
 
 type registerCli struct {
@@ -27,6 +25,7 @@ func NewUserCli(router Router, reader *bufio.Reader, userHandler handlers.UserHa
 func (uC *registerCli) HandleRoute(args RouteArgs, session *Session) {
 
 	fmt.Println("Register User")
+	fmt.Println("")
 
 	for {
 		//get user name
@@ -84,10 +83,21 @@ func (uC *registerCli) HandleRoute(args RouteArgs, session *Session) {
 			fmt.Println(err)
 			continue
 		}
-		fmt.Printf("User '%s' successfully registered\n", email)
-		// to let user see success msg :P
-		time.Sleep(time.Second)
-		uC.router.Push(routes.HOME_PAGE_ROUTE, RouteArgs{})
+
+		// get user again to fill userId
+		savedUser, err := uC.userHandler.GetUserByEmail(instance.Email)
+		if err != nil {
+			// somethign went wrong...
+			fmt.Println("Something went wrong. Please try again.")
+			continue
+		}
+
+		fmt.Printf("User '%s' successfully registered\n", savedUser.Email)
+		// automatically login user
+		session.CurrentUser = savedUser
+
+		// return to prev
+		uC.router.Pop()
 		return
 	}
 }

@@ -60,6 +60,7 @@ func (gR *gamesRepo) GetAllGames(name string, limit int, start int) ([]*entities
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	result := []*entities.Game{}
 	for rows.Next() {

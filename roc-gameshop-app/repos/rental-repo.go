@@ -42,6 +42,8 @@ func (r *rentalRepo) GetAllRentals() ([]entities.Rental, error) {
 		fmt.Println("Error executing get all rentals query")
 		return nil, err
 	}
+	defer rows.Close()
+
 	rentals := []entities.Rental{}
 	for rows.Next() {
 		rental := entities.Rental{}
@@ -81,6 +83,8 @@ func (r *rentalRepo) GetRentalById(id int) (*entities.Rental, error) {
 		fmt.Println("Error executing get rental by id query")
 		return nil, err
 	}
+	defer rows.Close()
+
 	rental := entities.Rental{}
 	for rows.Next() {
 		err := rows.Scan(&rental.RentalId, &rental.UserId, &rental.GameId, &rental.StartDate, &rental.EndDate, &rental.Status)
@@ -105,6 +109,8 @@ func (r *rentalRepo) GetRentalsOverdue() ([]*entities.RentalOverdue, error) {
 		fmt.Println("Error executing get all rentals query")
 		return nil, err
 	}
+	defer rows.Close()
+
 	rentals := []*entities.RentalOverdue{}
 	for rows.Next() {
 		rental := entities.RentalOverdue{}
