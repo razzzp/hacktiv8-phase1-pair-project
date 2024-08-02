@@ -8,6 +8,7 @@ import (
 type ReviewHandler interface {
 	GetByGameId(id int) ([]*entities.ReviewPerGame, error)
 	GetAvgRating(id int) (*float64, error)
+	GetAvgRatings() ([]*entities.AvgRatingPerGame, error)
 	Create(review entities.Review) error
 }
 
@@ -43,4 +44,12 @@ func (r *reviewHandler) Create(review entities.Review) error {
 		return err
 	}
 	return nil
+}
+
+func (r *reviewHandler) GetAvgRatings() ([]*entities.AvgRatingPerGame, error) {
+	ratings, err := r.reviewRepo.GetAvgRatingPerGame()
+	if err != nil {
+		return nil, err
+	}
+	return ratings, nil
 }
