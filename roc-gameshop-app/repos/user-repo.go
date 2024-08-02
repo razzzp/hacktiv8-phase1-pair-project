@@ -23,7 +23,7 @@ func (u *userRepo) CreateUser(user entities.User) error {
 	query := `
 	INSERT INTO Users (Name, Role, Email, PhoneNumber, PasswordHash)
 	VALUES (?,?,?,?,?)`
-	fmt.Println("role: ", user.Role)
+	// fmt.Println("role: ", user.Role)
 	_, err := u.db.Exec(query, user.Name, user.Role, user.Email, user.PhoneNumber, user.PasswordHash)
 	if err != nil {
 		fmt.Println("Error executing create user query")

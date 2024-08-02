@@ -1,7 +1,6 @@
 package entities
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -15,6 +14,6 @@ type User struct {
 }
 
 func (u *User) IsAdmin() bool {
-	fmt.Println("role: ", u.Role)
+	// fmt.Println("role: ", u.Role)
 	return strings.ToLower(u.Role) == "admin"
 }
