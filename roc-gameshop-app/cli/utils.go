@@ -236,3 +236,18 @@ func FormatAsCurrency(val float64) string {
 	s := fmt.Sprintf("$%.2f", val)
 	return s
 }
+
+// asks for string
+func PromptUserForString(msg string, defaultVal string, reader *bufio.Reader) string {
+	fmt.Print(msg)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return defaultVal
+	}
+	input = strings.TrimSpace(input)
+	// returns default
+	if input == "" {
+		input = defaultVal
+	}
+	return input
+}

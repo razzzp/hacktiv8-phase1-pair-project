@@ -161,13 +161,38 @@ func (gDC *gameDetailsCli) GetAdminActions(game *entities.Game, session *Session
 		{
 			Name: "Edit Game",
 			ActionFunc: func() {
-				//TODO
+				gameDto := gDC.gameHandler.GameToDTO(game)
+				fmt.Println("Please enter details to update (leave empty to not modify)")
+				// update game dto from user input
+				gameDto.Name = PromptUserForString(fmt.Sprintf("Enter new name (%s):\n", gameDto.Name), gameDto.Name, gDC.reader)
+				gameDto.Genre = PromptUserForString(fmt.Sprintf("Enter new genre (%s):\n", gameDto.Genre), gameDto.Genre, gDC.reader)
+				gameDto.Description = PromptUserForString(fmt.Sprint("Enter new description:\n", ""), gameDto.Description, gDC.reader)
+				gameDto.SalePrice = PromptUserForString(fmt.Sprintf("Enter new sale price (%s):\n", gameDto.SalePrice), gameDto.SalePrice, gDC.reader)
+				gameDto.RentalPrice = PromptUserForString(fmt.Sprintf("Enter new rent price (%s/day):\n", gameDto.RentalPrice), gameDto.RentalPrice, gDC.reader)
+
+				updateGame, err := gDC.gameHandler.ValidateGameDto(&gameDto)
+				if err != nil {
+					fmt.Printf("Error: %v", err)
+					time.Sleep(time.Second)
+				}
+
+				gDC.gameHandler.UpdateGame(*updateGame)
 			},
 		},
 		{
 			Name: "Delete Game",
 			ActionFunc: func() {
-				// TODO
+				confirm := PromptUserForString("Are you sure you want to delete this game? (y/n)", "n", gDC.reader)
+				if strings.EqualFold(confirm, "y") {
+					err := gDC.gameHandler.DeleteGame(game.GameId)
+					if err != nil {
+						fmt.Printf("Failed to delete game: %v", err)
+					} else {
+						fmt.Printf("Game '%s' successfully deleted.", game.Name)
+						time.Sleep(time.Second)
+						gDC.router.Pop()
+					}
+				}
 			},
 		},
 	}
